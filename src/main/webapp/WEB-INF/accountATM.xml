@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<customers xmlns:account="http://abc.vn">
+    <account:allowed username="thinkk" balance="230">
+        <fullname>Thinh DD</fullname>
+        <address>123 Cho Quan</address>
+        <pin>0987</pin>
+        <class>D</class>
+        <transactions>
+            <transaction>
+                <id>2391311</id>
+                <date>2013/09/23</date>
+                <amount>50</amount>
+                <type>1</type>
+            </transaction>
+            <transaction>
+                <id>2391311</id>
+                <date>2013/09/23</date>
+                <amount>200</amount>
+                <type>1</type>
+            </transaction>
+            <transaction>
+                <id>2391311</id>
+                <date>2013/09/23</date>
+                <amount>20</amount>
+                <type>0</type>
+            </transaction>
+        </transactions>
+    </account:allowed>
+
+    <account:expired username="nghialq" balance="100">
+        <fullname>Luu Quang Nghia</fullname>
+        <address>29 Duong Bich Lien</address>
+        <pin>1242</pin>
+        <class>C</class>
+        <transactions>
+            <transaction>
+                <id>123456</id>
+                <date>2013/09/23</date>
+                <amount>50</amount>
+                <type>1</type>
+            </transaction>
+            <transaction>
+                <id>123456</id>
+                <date>2013/09/23</date>
+                <amount>200</amount>
+                <type>1</type>
+            </transaction>
+            <transaction>
+                <id>123456</id>
+                <date>2013/09/23</date>
+                <amount>20</amount>
+                <type>0</type>
+            </transaction>
+        </transactions>
+    </account:expired>
+</customers>
