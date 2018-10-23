@@ -1,9 +1,6 @@
 package com.ziggy192.coursesource.util;
 
 import com.sun.xml.internal.stream.events.EndElementEvent;
-import com.sun.xml.internal.stream.events.StartElementEvent;
-import com.sun.xml.internal.stream.events.XMLEventAllocatorImpl;
-import com.ziggy192.coursesource.EdumallCrawler;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -349,21 +346,6 @@ public class Utils {
 		return factory.createXMLEventReader(streamReader);
 	}
 
-	public static XMLStreamReader getStaxReaderNotValidating(InputStream inputStream) throws FileNotFoundException, XMLStreamException, UnsupportedEncodingException {
-		XMLInputFactory factory = getXMLInputFactory();
-
-
-		factory.setEventAllocator(new XMLEventAllocatorImpl());
-		EdumallCrawler.allocator = factory.getEventAllocator();
-
-
-		XMLStreamReader xmlEventReader = factory.createXMLStreamReader(
-				new InputStreamReader(inputStream, "UTF-8")
-		);
-
-		return xmlEventReader;
-
-	}
 
 	private static XMLInputFactory getXMLInputFactory() {
 		XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -448,7 +430,7 @@ public class Utils {
 
 
 			while ((inputLine = bufferedReader.readLine()) != null) {
-				inputLine = formatHTML(inputLine);
+				inputLine = replaceEntities(inputLine);
 				stringBuffer.append(inputLine.trim() + "\n");
 			}
 		} catch (
@@ -477,13 +459,13 @@ public class Utils {
 				if (inputLine.contains(beginSign)) {
 					isInside = true;
 				}
-				if (inputLine.contains(endSign)) {
+				if (isInside && inputLine.contains(endSign)) {
 					isInside = false;
 					break;
 				}
 
 				if (isInside) {
-					inputLine = formatHTML(inputLine);
+					inputLine = replaceEntities(inputLine);
 					htmlBuilder.append(inputLine);
 //					logger.info(inputLine);
 
@@ -504,7 +486,7 @@ public class Utils {
 	}
 
 
-	public static String formatHTML(String content) {
+	public static String replaceEntities(String content) {
 		content = content
 				.replace("&","&amp;")
 				.replace("&#38;nbsp;", "")
