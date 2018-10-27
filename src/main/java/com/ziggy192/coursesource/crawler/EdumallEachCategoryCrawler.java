@@ -126,7 +126,10 @@ public class EdumallEachCategoryCrawler implements Runnable{
 				String eachPageUri = categoryUrl + "&page=" + i;
 
 				Thread courseInEachCategoryPageCrawler = new Thread(new EdumallCourseInEachCategoryPageCrawler(eachPageUri, categoryId));
-				courseInEachCategoryPageCrawler.start();
+				//todo thread execute
+				BaseThread.getInstance().getExecutor().execute(courseInEachCategoryPageCrawler);
+
+//				courseInEachCategoryPageCrawler.start();
 
 
 				//check issuspend

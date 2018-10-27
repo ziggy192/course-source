@@ -48,7 +48,10 @@ public class EdumallCourseInEachCategoryPageCrawler implements Runnable {
 						BaseThread.getInstance().wait();
 					}
 				}
-				courseDetailCrawler.start();
+
+				//todo thread execute
+				BaseThread.getInstance().getExecutor().execute(courseDetailCrawler);
+//				courseDetailCrawler.start();
 
 
 			}

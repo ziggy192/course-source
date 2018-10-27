@@ -15,6 +15,8 @@ import javax.xml.stream.events.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class EdumallMainCrawler implements Runnable {
 
@@ -33,9 +35,9 @@ public class EdumallMainCrawler implements Runnable {
 		}
 
 
-
 		Thread edumallCrawlerThread = new Thread(new EdumallMainCrawler());
-		edumallCrawlerThread.start();
+		BaseThread.getInstance().getExecutor().execute(edumallCrawlerThread);
+//		edumallCrawlerThread.start();
 
 		//try suspend and resume
 //		try {
@@ -937,7 +939,11 @@ public class EdumallMainCrawler implements Runnable {
 
 
 				Thread edumallEachCategoryCrawler = new Thread(new EdumallEachCategoryCrawler(categoryId, categoryUrlHolder.getCategoryURL()));
-				edumallEachCategoryCrawler.start();
+
+
+				//todo thread executor
+				BaseThread.getInstance().getExecutor().execute(edumallEachCategoryCrawler);
+//				edumallEachCategoryCrawler.start();
 
 				// wait to make sure server not close
 				Thread.sleep(Constants.BREAK_TIME_CRAWLING);
@@ -955,6 +961,7 @@ public class EdumallMainCrawler implements Runnable {
 		}
 
 		logger.info("END THREAD");
+
 
 	}
 }

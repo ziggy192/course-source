@@ -1,17 +1,31 @@
 package com.ziggy192.coursesource.crawler;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+
 public class BaseThread extends Thread {
+	public static int THREAD_LIMIT = 10;
+
 	private static final Object LOCK = new Object();
 	private static BaseThread instance;
 
-
+	private ThreadPoolExecutor executor;
 	private BaseThread() {
+		executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(THREAD_LIMIT);
 	}
+
+
+	public ThreadPoolExecutor getExecutor() {
+		return executor;
+	}
+
+
 
 	public static BaseThread getInstance() {
 		synchronized (LOCK) {
 			if (instance == null) {
 				instance = new BaseThread();
+
 			}
 		}
 		return instance;
@@ -26,6 +40,8 @@ public class BaseThread extends Thread {
 	public void setSuspended(boolean isSuspended) {
 		this.suspended = isSuspended;
 	}
+
+
 
 	public void suspendThread() {
 		setSuspended(true);
