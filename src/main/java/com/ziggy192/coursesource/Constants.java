@@ -5,7 +5,7 @@ public class Constants {
 
 
 	/*==================EDUMALLL=============*/
-	public static final String EDUMALL_DOMAIN = "https://edumall.vn";
+	public static final String EDUMALL_DOMAIN = "edumall.vn";
 	public static final String EDUMALL_DOMAIN_NAME = "Edumall" ;
 
 

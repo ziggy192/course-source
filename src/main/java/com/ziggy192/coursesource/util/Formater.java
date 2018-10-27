@@ -67,4 +67,16 @@ public class Formater {
 		return content + "</ul>";
 	}
 
+	public static String addBeginRoot(String content) {
+		return String.format("<div class='%s' xmlns=\"http://www.w3.org/1999/xhtml\">%s",CSS_CLASS_ATTRIBUTE_NAME,content );
+	}
+
+	private static String addEndRoot(String content) {
+		return content+"</div>";
+
+	}
+
+	public static String toRoot(String content) {
+		return String.format("<div class='%s' xmlns=\"http://www.w3.org/1999/xhtml\">%s</div>", CSS_CLASS_ATTRIBUTE_NAME,content);
+	}
 }

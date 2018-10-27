@@ -28,6 +28,7 @@ import javax.xml.xpath.XPathFactory;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -441,7 +442,19 @@ public class Utils {
 		return new StreamSource(inputStream);
 	}
 
+	public static String encodeURL(String uri) throws UnsupportedEncodingException {
+		StringBuilder result = new StringBuilder("");
+
+		String[] strings = uri.split("/");
+		for (String string : strings) {
+			result.append(URLEncoder.encode(string, "ISO-8859-1")	);
+		}
+		return result.toString();
+	}
 	public static String parseHTML(String uri, String beginSign, String endSign) {
+		if (!uri.startsWith("https://") && !uri.startsWith("http://")) {
+			uri = "https://" + uri;
+		}
 		StringBuilder htmlBuilder = new StringBuilder();
 
 		boolean isInside = false;

@@ -3,25 +3,18 @@ package com.ziggy192.coursesource.crawler;
 import com.ziggy192.coursesource.CategoryMapping;
 import com.ziggy192.coursesource.Constants;
 import com.ziggy192.coursesource.DummyDatabase;
-import com.ziggy192.coursesource.model.Provider;
 import com.ziggy192.coursesource.url_holder.EdumallCategoryUrlHolder;
 import com.ziggy192.coursesource.url_holder.EdumallCourseUrlHolder;
-import com.ziggy192.coursesource.util.Formater;
 import com.ziggy192.coursesource.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.java2d.xr.MutableInteger;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.*;
 import javax.xml.stream.events.*;
-import javax.xml.stream.util.XMLEventAllocator;
-import javax.xml.transform.stream.StreamSource;
-import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class EdumallMainCrawler implements Runnable {
 
@@ -88,14 +81,7 @@ public class EdumallMainCrawler implements Runnable {
 
 	}
 
-	private static void testGetCourseDetail() {
 
-		EdumallCourseUrlHolder dummyCourseUrlHolder = new EdumallCourseUrlHolder("Guitar đệm hát trong 30 ngày"
-				, "http://d1nzpkv5wwh1xf.cloudfront.net/640/k-5768aeb1047c995f75fdbf6b/20170817-anhdaidienmoi_thinh/hiennt01.png"
-				, "https://edumall.vn/course/v4/guitar-dem-hat-trong-30-ngay");
-//		getCourseDetail(dummyCourseUrlHolder);
-
-	}
 
 
 //	public static void getCourseDetail(EdumallCourseUrlHolder courseUrlHolder) {
@@ -593,14 +579,6 @@ public class EdumallMainCrawler implements Runnable {
 //
 //	}
 
-	private static void testGetCourseListFromEachPage() {
-
-		String uri = "https://edumall.vn/courses/filter?categories[]=phong-thuy-nhan-tuong-hoc";
-
-
-		new Thread(new EdumallCourseInEachCategoryPageCrawler(uri, 1)).start();
-
-	}
 
 //	public static List<EdumallCourseUrlHolder> getCourseList(EdumallCategoryUrlHolder categoryUrlHolder,) {
 //
@@ -928,11 +906,11 @@ public class EdumallMainCrawler implements Runnable {
 
 		try {
 			// todo insert domain to db if not yet availabe
-			if (DummyDatabase.getProviderByName(Constants.EDUMALL_DOMAIN_NAME) == null) {
+			if (DummyDatabase.getDomainByName(Constants.EDUMALL_DOMAIN_NAME) == null) {
 				//insert to database
-				DummyDatabase.insertProvider(Constants.EDUMALL_DOMAIN_NAME, Constants.EDUMALL_DOMAIN);
+				DummyDatabase.insertDomain(Constants.EDUMALL_DOMAIN_NAME, Constants.EDUMALL_DOMAIN);
 			}
-			domainId = DummyDatabase.getProviderByName(Constants.EDUMALL_DOMAIN_NAME).getId();
+			domainId = DummyDatabase.getDomainByName(Constants.EDUMALL_DOMAIN_NAME).getId();
 
 			//get all category from domain url
 			List<EdumallCategoryUrlHolder> categories = getCategories();

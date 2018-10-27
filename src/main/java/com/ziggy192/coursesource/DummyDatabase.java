@@ -1,10 +1,31 @@
 package com.ziggy192.coursesource;
 
-import com.ziggy192.coursesource.model.Provider;
+import com.ziggy192.coursesource.crawler.EdumallCourseDetailCrawler;
+import com.ziggy192.coursesource.model.Domain;
+import com.ziggy192.coursesource.util.DBUtils;
+import jaxb.Category;
+import jaxb.CourseDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.ResourceUtils;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
-import java.util.PrimitiveIterator;
+import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class DummyDatabase {
+
+	private static Logger logger = LoggerFactory.getLogger(DummyDatabase.class.toString());
+
 	public static int getCategoryId(CategoryMapping categoryMapping) {
 		int result;
 
@@ -62,11 +83,11 @@ public class DummyDatabase {
 		return result;
 	}
 
-	public static Provider getProviderByName(String domainName) {
-		return new Provider(1, Constants.EDUMALL_DOMAIN_NAME, Constants.EDUMALL_DOMAIN);
+	public static Domain getDomainByName(String domainName) {
+		return new Domain(1, Constants.EDUMALL_DOMAIN_NAME, Constants.EDUMALL_DOMAIN);
 	}
 
-	public static void insertProvider(String name, String domainURL) {
+	public static void insertDomain(String name, String domainURL) {
 
 	}
 
@@ -74,4 +95,63 @@ public class DummyDatabase {
 
 	}
 
+	public static void validateCourseAndSaveToDB(CourseDTO courseDTO) {
+
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(courseDTO.getClass());
+			ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+
+			jaxbContext.createMarshaller().marshal(courseDTO, byteOutputStream);
+			ByteArrayInputStream byteInputStream = new ByteArrayInputStream(byteOutputStream.toByteArray());
+
+			SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+			File courseXSDFile = new File(DummyDatabase.class.getClassLoader().getResource("Course.xsd").getFile());
+
+			Schema schema = schemaFactory.newSchema(courseXSDFile);
+			logger.info(courseDTO.toString());
+			Validator validator = schema.newValidator();
+			validator.validate(new SAXSource(new InputSource(byteInputStream)));
+
+			logger.info("Validated");
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+			logger.error(String.format("NOT VALID Course %s", courseDTO));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+
+	}
+	public static void validateXMLBeforeSaveToDB(InputStream xmlStream) throws  IOException {
+		SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+//		File xsdFile = ResourceUtils.getFile(Thread.currentThread().getClass().getClassLoader().getResource("Category.xsd").getFile());
+
+		System.out.println();
+
+
+		try {
+			File xsdFile = new File(DummyDatabase.class.getClassLoader().getResource("Category.xsd").getFile());
+
+			Schema schema = schemaFactory.newSchema(xsdFile);
+			Validator validator = schema.newValidator();
+			validator.validate(new SAXSource(new InputSource(xmlStream)));
+			System.out.println("Validated");
+		} catch (SAXException e) {
+			e.printStackTrace();
+			System.out.println("File not valid");
+		}
+
+
+	}
+
+	private static void applicaionInit() {
+
+	}
+
+
+	private static void applicationDestroy() {
+		DBUtils.closeEntityFactory();
+	}
 }

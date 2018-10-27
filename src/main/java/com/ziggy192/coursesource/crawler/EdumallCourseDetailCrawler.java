@@ -1,9 +1,11 @@
 package com.ziggy192.coursesource.crawler;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.ziggy192.coursesource.DummyDatabase;
 import com.ziggy192.coursesource.url_holder.EdumallCourseUrlHolder;
 import com.ziggy192.coursesource.util.Formater;
 import com.ziggy192.coursesource.util.Utils;
+import jaxb.CourseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.java2d.xr.MutableInteger;
@@ -14,7 +16,13 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,6 +36,26 @@ public class EdumallCourseDetailCrawler implements Runnable {
 	public EdumallCourseDetailCrawler(EdumallCourseUrlHolder courseDetailUrlHolder, int categoryId) {
 		this.courseDetailUrlHolder = courseDetailUrlHolder;
 		this.categoryId = categoryId;
+	}
+
+
+	private int toDuration(String durationStr) {
+		// hh:mm:ss
+		int duration = -1;
+		try {
+			String[] splitResult = durationStr.split(":");
+			int hours = Integer.parseInt(splitResult[0]);
+			int minutes = Integer.parseInt(splitResult[1]);
+			int seconds = Integer.parseInt(splitResult[2]);
+
+			duration = hours * 3600 + minutes * 60 + seconds;
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			duration = -1;
+		}
+
+
+		return duration;
 	}
 
 	@Override
@@ -60,6 +88,22 @@ public class EdumallCourseDetailCrawler implements Runnable {
 
 
 			String overviewDescription = "";
+			String videoUrl;
+			double costValue = 0;
+
+			CourseDTO courseDTO = new CourseDTO();
+
+			courseDTO.setCategoryId(categoryId);
+
+
+			courseDTO.setSourceURL(courseDetailUrlHolder.getCourseUrl());
+			courseDTO.setName(courseDetailUrlHolder.getCourseName());
+			courseDTO.setImageURL(courseDetailUrlHolder.getCourseThumbnailUrl());
+
+			//todo get providerid from EdumallMainCrawler static or singleton
+			//get providerid = 'edumall'
+			courseDTO.setDomainId(EdumallMainCrawler.domainId);
+
 			try {
 				XMLEventReader staxReader = Utils.getStaxReader(htmlContent);
 				while (staxReader.hasNext()) {
@@ -69,32 +113,20 @@ public class EdumallCourseDetailCrawler implements Runnable {
 						Iterator<Attribute> attributes = startElement.getAttributes();
 
 
-						//todo check inside courseListDiv
-						//<div class='list-courses-filter'
-	//					if (!insideContainerDiv) {
-	//						{
-	//							if (startElement.getName().getLocalPart().equals("div")
-	//									&& Utils.checkAttributeContainsKey(startElement, "class", "col-lg-8")) {
-	//								insideContainerDiv = true;
-	//							}
-	//						}
-	//					}
-	//					if (insideContainerDiv) {
-
-
 						//todo get VideoURL
 
 						//<iframe allowfullscreen="" frameborder="0" height="100%" src="https://www.youtube.com/embed/cyGq22d1sbk?modestbranding=0&amp;amp;rel=0&amp;amp;showinfo=0" width="100%"></iframe>
 						if (startElement.getName().getLocalPart().equals("iframe")
-	//								&& Utils.checkAttributeContainsKey(startElement, "class", "ytp-title-link")
-	//								&& Utils.checkAttributeContainsKey(startElement, "class", "yt-uix-sessionlink")
+							//								&& Utils.checkAttributeContainsKey(startElement, "class", "ytp-title-link")
+							//								&& Utils.checkAttributeContainsKey(startElement, "class", "yt-uix-sessionlink")
 						) {
 
 							Attribute srcAtt = startElement.getAttributeByName(new QName("src"));
 
 							if (srcAtt != null) {
-								String videoUrl = srcAtt.getValue();
+								videoUrl = srcAtt.getValue();
 								logger.info("VideURL=" + videoUrl);
+								courseDTO.setPreviewVideoURL(videoUrl);
 
 							}
 
@@ -105,15 +137,16 @@ public class EdumallCourseDetailCrawler implements Runnable {
 						//<p class="col-md-12 col-xs-12 price" style="" xpath="1">699,000đ</p>
 
 						if (startElement.getName().getLocalPart().equals("p")
-								&& Utils.checkAttributeContainsKey(startElement, "class", new String[]{
-								"col-md-12", "col-xs-12", "price"
-						})
+								&& (Utils.checkAttributeContainsKey(startElement, "class", new String[]{
+								"col-md-12", "col-xs-12", "price"})
+								|| Utils.checkAttributeContainsKey(startElement, "class", new String[]{
+								"price_sale"
+						}))
 						) {
 							String cost = Utils.getContentAndJumpToEndElement(staxReader, startElement);
 							if (!cost.isEmpty()) {
 
 								//get int value from cost
-								int costValue = 0;
 								for (int i = 0; i < cost.length(); i++) {
 									if (cost.charAt(i) >= '0' && cost.charAt(i) <= '9') {
 										int charValue = cost.charAt(i) - '0';
@@ -121,6 +154,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 									}
 								}
 								logger.info("Cost=" + costValue);
+								courseDTO.setCost(new BigDecimal(costValue));
 							}
 						}
 
@@ -136,21 +170,15 @@ public class EdumallCourseDetailCrawler implements Runnable {
 									"fas", "fa-clock"
 							});
 							startElement = Utils.nextStartEvent(staxReader, "span", new String[]{"pull-right"}).asStartElement();
-							String duration = Utils.getContentAndJumpToEndElement(staxReader, startElement);
-							if (!duration.isEmpty()) {
-								logger.info("Duration=" + duration);
+							String durationStr = Utils.getContentAndJumpToEndElement(staxReader, startElement);
+							if (!durationStr.isEmpty()) {
+								int duration = toDuration(durationStr);
+								logger.info("Duration In seconds=" + duration);
+								courseDTO.setDuration(duration);
 							}
 						}
 
 						//todo get author name
-	//					if (startElement.getName().getLocalPart().equals("span")
-	//							&& Utils.checkAttributeContainsKey(startElement, "class", "name_teacher")) {
-	//						String authorName = Utils.getContentAndJumpToEndElement(staxReader, startElement);
-	//						if (!authorName.isEmpty()) {
-	//							logger.info("Author="+authorName);
-	//						}
-	//					}
-
 						/*
 						<section class="section_author" id="general-author-tab">
 						<div class="info_author" style="" xpath="1">
@@ -172,7 +200,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 
 							boolean insideAuthorInfo = false;
 
-	//						List<String> contentList = new ArrayList<>();
+							//						List<String> contentList = new ArrayList<>();
 							while (stackCount > 0) {
 								event = staxReader.nextEvent();
 								if (event.isStartElement()) {
@@ -185,6 +213,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 										stackCount--;
 										if (!authorName.isEmpty()) {
 											logger.info("Author=" + authorName);
+											courseDTO.setAuthor(authorName);
 										}
 									}
 
@@ -197,6 +226,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 										}
 
 										logger.info("AuthorImage=" + imageUrl);
+										courseDTO.setAuthorImageURL(imageUrl);
 									}
 									if (Utils.checkAttributeContainsKey(startElement, "id", "author_info")) {
 										insideAuthorInfo = true;
@@ -218,8 +248,10 @@ public class EdumallCourseDetailCrawler implements Runnable {
 
 							}
 
-
+							authorInfo = Formater.toRoot(authorInfo);
 							logger.info("AuthorInfo=" + authorInfo);
+
+							courseDTO.setAuthorDescription(authorInfo);
 						}
 
 						// TODO: get overview description
@@ -472,6 +504,9 @@ public class EdumallCourseDetailCrawler implements Runnable {
 							if (lectureNameList.size() > 0) {
 								syllabus += Formater.toList(lectureNameList.toArray(new String[lectureNameList.size()]));
 							}
+
+							syllabus = Formater.toRoot(syllabus);
+							courseDTO.setSyllabus(syllabus);
 							logger.info("Syllabus=" + syllabus);
 
 						}
@@ -491,14 +526,15 @@ public class EdumallCourseDetailCrawler implements Runnable {
 						//</div>
 						if (startElement.getName().getLocalPart().equals("div")
 								&& Utils.checkAttributeContainsKey(startElement, "class", "intro_course")) {
-	//						startElement = nextStartEvent(staxReader, "div", new String[]{"star-rating"}).asStartElement();
-	//					}
-	//					if (startElement.getName().getLocalPart().equals("div")
-	//							&& Utils.checkAttributeContainsKey(startElement, "class", "star-rating")
-	//					) {
+							//						startElement = nextStartEvent(staxReader, "div", new String[]{"star-rating"}).asStartElement();
+							//					}
+							//					if (startElement.getName().getLocalPart().equals("div")
+							//							&& Utils.checkAttributeContainsKey(startElement, "class", "star-rating")
+							//					) {
 							startElement = Utils.nextStartEvent(staxReader, "b").asStartElement();
 
 							String rating = Utils.getContentAndJumpToEndElement(staxReader, startElement);
+							courseDTO.setRating(new BigDecimal(rating));
 							logger.info("Rating=" + rating);
 							event = staxReader.nextEvent();
 							if (event.isCharacters()) {
@@ -510,6 +546,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 								} catch (NumberFormatException e) {
 									e.printStackTrace();
 								}
+								courseDTO.setRatingNumber(ratingNumber);
 								logger.info("RatingNumber=" + ratingNumber);
 							}
 						}
@@ -518,16 +555,21 @@ public class EdumallCourseDetailCrawler implements Runnable {
 					}
 				}
 
+
+				overviewDescription = Formater.toRoot(overviewDescription);
+				logger.info("FullOverviewDes=" + overviewDescription);
+				courseDTO.setOverviewDescription(overviewDescription);
+
+
 				//if no exception then save to data base
+
 				//todo save to db here
 				//get name, image, url from holder
 				//get the rest except tag from above
 				//get categoryid
 
-				//todo get providerid from EdumallMainCrawler static or singleton
-				//get providerid = 'edumall'
 
-
+				DummyDatabase.validateCourseAndSaveToDB(courseDTO);
 
 			} catch (XMLStreamException e) {
 				e.printStackTrace();

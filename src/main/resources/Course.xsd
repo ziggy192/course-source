@@ -1,0 +1,54 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="www.Course.com"
+           xmlns="www.Course.com"
+           elementFormDefault="qualified">
+
+    <xs:simpleType name="URL">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="(https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}[-a-zA-Z0-9@:%_\+.~#?&amp;/=]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType mixed="true" name="HTMLString">
+        <xs:sequence>
+            <xs:any namespace="http://www.w3.org/1999/xhtml"  minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="Course">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Id" type="xs:nonNegativeInteger" minOccurs="0"/>
+                <xs:element name="Name" type="xs:token"/>
+                <xs:element name="Author" type="xs:token"/>
+
+                <!--todo validate authorDes-->
+                <xs:element name="AuthorDescription" type="HTMLString" minOccurs="0"/>
+                <xs:element name="DomainId" type="xs:nonNegativeInteger"/>
+                <xs:element name="CategoryId" type="xs:nonNegativeInteger"/>
+                <!--todo validate overviewDes-->
+                <xs:element name="OverviewDescription" type="HTMLString"/>
+                <xs:element name="AuthorImageURL" type="URL" minOccurs="0"/>
+                <xs:element name="Rating">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:decimal">
+                            <xs:maxInclusive value="5"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="RatingNumber" type="xs:int"/>
+                <xs:element name="Cost" type="xs:decimal"/>
+                <!--todo validate duaration-->
+                <xs:element name="Duration" type="xs:nonNegativeInteger"/>
+
+                <!--todo validate syllabus-->
+                <xs:element name="Syllabus" type="HTMLString"/>
+
+                <!---->
+                <xs:element name="PreviewVideoURL" type="xs:string" minOccurs="0"/>
+                <xs:element name="ImageURL" type="URL" />
+                <xs:element name="SourceURL" type="URL"/>
+
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

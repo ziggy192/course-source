@@ -13,6 +13,10 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -163,6 +167,21 @@ public class EdumallCourseInEachCategoryPageCrawler implements Runnable {
 
 								if (hrefAttribute != null) {
 									String hrefValue = hrefAttribute.getValue();
+//									try {
+//										hrefValue = URLEncoder.encode(hrefValue, "ISO-8859-1");
+//									} catch (UnsupportedEncodingException e) {
+//										e.printStackTrace();
+//									}
+
+//									try {
+//
+//										//UTF-8 encode URL
+//										URI urimodel = new URI("https", Constants.EDUMALL_DOMAIN, hrefValue, null);
+//										hrefValue  = urimodel.toASCIIString();
+//									} catch (URISyntaxException e) {
+//										e.printStackTrace();
+//
+//									}
 									hrefValue = Constants.EDUMALL_DOMAIN + hrefValue;
 									lastCourse.setCourseUrl(hrefValue);
 									logger.info(String.format("course number=%s || coureUrl=%s", courseList.size() - 1, hrefValue));
