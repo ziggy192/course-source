@@ -6,20 +6,16 @@ import com.ziggy192.coursesource.crawler.EdumallMainCrawler;
 import com.ziggy192.coursesource.dao.DomainDAO;
 import com.ziggy192.coursesource.entity.CategoryEntity;
 import com.ziggy192.coursesource.entity.DomainEntity;
-import com.ziggy192.coursesource.url_holder.EdumallCourseUrlHolder;
+import com.ziggy192.coursesource.url_holder.CourseUrlHolder;
 import com.ziggy192.coursesource.util.DBUtils;
-import jaxb.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -80,7 +76,7 @@ public class MainTest {
 
 	private static void testGetCourseDetail() {
 
-		EdumallCourseUrlHolder dummyCourseUrlHolder = new EdumallCourseUrlHolder("Tạo slide trình bày ấn tượng với Prezi, Google trình chiếu và Power Point"
+		CourseUrlHolder dummyCourseUrlHolder = new CourseUrlHolder("Tạo slide trình bày ấn tượng với Prezi, Google trình chiếu và Power Point"
 				, "d1nzpkv5wwh1xf.cloudfront.net/640/k-5768aeb1047c995f75fdbf6b/20180626-/14-luu-y-giup-ban-thuyet-trin.png"
 				, "edumall.vn/course/tao-slide-trinh-bay-an-tuong-voi-prezi-google-trinh-chieu-va-power-point");
 //				, "https://edumall.vn/course/dao-tao-ky-thuat-truong-cửa-hang-gas");

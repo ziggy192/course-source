@@ -1,18 +1,18 @@
 package com.ziggy192.coursesource.url_holder;
 
-public class EdumallCourseUrlHolder {
+public class CourseUrlHolder {
 	private String courseName;
 	private String courseThumbnailUrl;
 	private String courseUrl;
 
 
-	public EdumallCourseUrlHolder(String courseName, String courseThumbnailUrl, String courseUrl) {
+	public CourseUrlHolder(String courseName, String courseThumbnailUrl, String courseUrl) {
 		this.courseName = courseName;
 		this.courseThumbnailUrl = courseThumbnailUrl;
 		this.courseUrl = courseUrl;
 	}
 
-	public EdumallCourseUrlHolder() {
+	public CourseUrlHolder() {
 	}
 
 	public String getCourseThumbnailUrl() {
@@ -41,7 +41,7 @@ public class EdumallCourseUrlHolder {
 
 	@Override
 	public String toString() {
-		return "EdumallCourseUrlHolder{" +
+		return "CourseUrlHolder{" +
 				"courseName='" + courseName + '\'' +
 				", courseThumbnailUrl='" + courseThumbnailUrl + '\'' +
 				", courseUrl='" + courseUrl + '\'' +

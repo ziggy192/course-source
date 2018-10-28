@@ -16,46 +16,21 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class EdumallCourseInEachCategoryPageCrawler implements Runnable {
+public class UnicaCourseInEachCategoryPageCrawler implements Runnable {
 
-
-	public static Logger logger = LoggerFactory.getLogger(EdumallCourseInEachCategoryPageCrawler.class.toString());
+	public static Logger logger = LoggerFactory.getLogger(UnicaCourseInEachCategoryPageCrawler.class.toString());
 
 	private String categoryPageUrl;
 	private int categoryId;
 
-	public EdumallCourseInEachCategoryPageCrawler(String categoryPageUrl, int categoryId) {
+	public UnicaCourseInEachCategoryPageCrawler(String categoryPageUrl, int categoryId) {
 		this.categoryPageUrl = categoryPageUrl;
 		this.categoryId = categoryId;
 	}
 
+
 	@Override
 	public void run() {
-		logger.info("start thread");
-		try {
-			List<CourseUrlHolder> courseListFromEachPage = getCourseListFromEachPage(categoryPageUrl);
-			for (CourseUrlHolder courseUrlHolder : courseListFromEachPage) {
-				Thread courseDetailCrawler = new Thread(new EdumallCourseDetailCrawler(courseUrlHolder, categoryId));
-
-				//check suspend
-				synchronized (BaseThread.getInstance()) {
-					while (BaseThread.getInstance().isSuspended()) {
-						BaseThread.getInstance().wait();
-					}
-				}
-
-				//todo thread execute
-				BaseThread.getInstance().getExecutor().execute(courseDetailCrawler);
-//				courseDetailCrawler.start();
-
-
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		logger.info("END THREAD");
-
 
 	}
 

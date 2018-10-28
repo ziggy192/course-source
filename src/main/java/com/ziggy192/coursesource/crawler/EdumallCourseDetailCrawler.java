@@ -2,7 +2,7 @@ package com.ziggy192.coursesource.crawler;
 
 import com.ziggy192.coursesource.dao.CourseDAO;
 import com.ziggy192.coursesource.entity.CourseEntity;
-import com.ziggy192.coursesource.url_holder.EdumallCourseUrlHolder;
+import com.ziggy192.coursesource.url_holder.CourseUrlHolder;
 import com.ziggy192.coursesource.util.Formater;
 import com.ziggy192.coursesource.util.ParserUtils;
 import com.ziggy192.coursesource.util.StringUtils;
@@ -24,10 +24,10 @@ public class EdumallCourseDetailCrawler implements Runnable {
 	private static Logger logger = LoggerFactory.getLogger(EdumallCourseDetailCrawler.class.toString());
 
 
-	private EdumallCourseUrlHolder courseDetailUrlHolder;
+	private CourseUrlHolder courseDetailUrlHolder;
 	private int categoryId;
 
-	public EdumallCourseDetailCrawler(EdumallCourseUrlHolder courseDetailUrlHolder, int categoryId) {
+	public EdumallCourseDetailCrawler(CourseUrlHolder courseDetailUrlHolder, int categoryId) {
 		this.courseDetailUrlHolder = courseDetailUrlHolder;
 		this.categoryId = categoryId;
 	}

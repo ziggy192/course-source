@@ -89,4 +89,56 @@ public enum CategoryMapping {
 		}
 		return result;
 	}
+
+	public static CategoryMapping mapUnica(String unicaCategoryName) {
+		CategoryMapping result = CategoryMapping.OTHER;
+		switch (unicaCategoryName) {
+			case "Nhiếp ảnh, dựng phim":
+				result = MULTIMEDIA;
+				break;
+			case "Học Thiết kế":
+				result = DESIGN;
+				break;
+			case "Khóa học Phát triển cá nhân":
+			result = PERSONAL_DEVELOPMENT;
+			break;
+			case "Tin học văn phòng":
+			result = OFFICE_PRODUCTIVITY;
+			break;
+			case "Âm nhạc":
+			result = MUSIC;
+			break;
+			case "Khóa học  Marketing":
+			result = MARKETING;
+			break;
+			case "Phong cách sống":
+			result = LIFE_STYLE;
+			break;
+			case "Khóa học Tiếng Anh, Tiếng Nhật, Tiếng Hàn, Tiếng Trung Giao Tiếp":
+			result = LANGUAGE;
+			break;
+			case "Khóa học Công nghệ thông tin":
+			result = IT;
+			break;
+			case "Khóa học Sức khỏe - Giới tính":
+			result = HEALTH_AND_FITNESS;
+			break;
+			case "Sale, bán hàng":
+			result = BUSINESS;
+			break;
+			case "Khóa học Kinh doanh & Khởi nghiệp":
+				result = BUSINESS;
+				break;
+			case "Khóa học Nuôi dạy con":
+				result = KIDS;
+				break;
+			default:
+				result = OTHER;
+				break;
+
+		}
+		return result;
+	}
+
+
 }

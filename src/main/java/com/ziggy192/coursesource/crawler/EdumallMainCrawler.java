@@ -6,7 +6,7 @@ import com.ziggy192.coursesource.DummyDatabase;
 import com.ziggy192.coursesource.dao.CategoryDAO;
 import com.ziggy192.coursesource.dao.DomainDAO;
 import com.ziggy192.coursesource.entity.DomainEntity;
-import com.ziggy192.coursesource.url_holder.EdumallCategoryUrlHolder;
+import com.ziggy192.coursesource.url_holder.CategoryUrlHolder;
 import com.ziggy192.coursesource.util.ParserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,11 +61,11 @@ public class EdumallMainCrawler implements Runnable {
 	public static void testGetAllCourse() {
 		String uri = "https://edumall.vn/courses/filter?categories[]=luyen-thi&page=2";
 
-		EdumallCategoryUrlHolder categoryUrlHolder = new EdumallCategoryUrlHolder("Luyện thi", uri);
+		CategoryUrlHolder categoryUrlHolder = new CategoryUrlHolder("Luyện thi", uri);
 
 //		getAllCoursesFromCategory(categoryUrlHolder);
 
-//		for (EdumallCourseUrlHolder courseUrlHolder : allCoursesFromCategory) {
+//		for (CourseUrlHolder courseUrlHolder : allCoursesFromCategory) {
 //			logger.info("Detail=======================");
 //			getCourseDetail(courseUrlHolder);
 //
@@ -75,7 +75,7 @@ public class EdumallMainCrawler implements Runnable {
 	public static void testGetPageNumber() {
 		String uri = "https://edumall.vn/courses/filter?categories[]=luyen-thi&page=2";
 
-		EdumallCategoryUrlHolder categoryUrlHolder = new EdumallCategoryUrlHolder("Luyện thi", uri);
+		CategoryUrlHolder categoryUrlHolder = new CategoryUrlHolder("Luyện thi", uri);
 		//test get total pages
 //		int page = getTotalPageForEachCategory(categoryUrlHolder);
 //		System.out.println("Total page =" + page);
@@ -85,7 +85,7 @@ public class EdumallMainCrawler implements Runnable {
 
 
 
-//	public static void getCourseDetail(EdumallCourseUrlHolder courseUrlHolder) {
+//	public static void getCourseDetail(CourseUrlHolder courseUrlHolder) {
 //		System.out.println("Detail=======================");
 ////		String uri = "https://edumall.vn/course/guitar-dem-hat-trong-30-ngay";
 ////		String uri = "https://edumall.vn/v4/course/microsoft-word-co-ban-va-hieu-qua";
@@ -581,11 +581,11 @@ public class EdumallMainCrawler implements Runnable {
 //	}
 
 
-//	public static List<EdumallCourseUrlHolder> getCourseList(EdumallCategoryUrlHolder categoryUrlHolder,) {
+//	public static List<CourseUrlHolder> getCourseList(CategoryUrlHolder categoryUrlHolder,) {
 //
 //	}
 
-//	public static int getTotalPageForEachCategory(EdumallCategoryUrlHolder urlHolder) {
+//	public static int getTotalPageForEachCategory(CategoryUrlHolder urlHolder) {
 //
 //		String uri = urlHolder.getCategoryURL();
 //
@@ -658,8 +658,8 @@ public class EdumallMainCrawler implements Runnable {
 //		return pageCount;
 //	}
 
-	public List<EdumallCategoryUrlHolder> getCategories() {
-		List<EdumallCategoryUrlHolder> categories = new ArrayList<>();
+	public List<CategoryUrlHolder> getCategories() {
+		List<CategoryUrlHolder> categories = new ArrayList<>();
 
 		String uri = Constants.EDUMALL_DOMAIN;
 
@@ -718,7 +718,7 @@ public class EdumallMainCrawler implements Runnable {
 
 
 //									logger.info(String.format("categoryURL=%s | categoryName=%s", categoryURL,categoryName));
-									EdumallCategoryUrlHolder categoryUrlHolder = new EdumallCategoryUrlHolder(categoryName, categoryURL);
+									CategoryUrlHolder categoryUrlHolder = new CategoryUrlHolder(categoryName, categoryURL);
 									categories.add(categoryUrlHolder);
 									logger.info(categoryUrlHolder.toString());
 
@@ -742,7 +742,7 @@ public class EdumallMainCrawler implements Runnable {
 	}
 
 
-//	public static List<EdumallCourseUrlHolder> getCourseListFromEachPage(EdumallCategoryUrlHolder categoryUrlHolder) {
+//	public static List<CourseUrlHolder> getCourseListFromEachPage(CategoryUrlHolder categoryUrlHolder) {
 //
 ////		String uri = "https://edumall.vn/courses/filter&page=2";
 //
@@ -754,7 +754,7 @@ public class EdumallMainCrawler implements Runnable {
 //		htmlContent = ParserUtils.addMissingTag(htmlContent);
 //
 //
-//		List<EdumallCourseUrlHolder> courseList = new ArrayList<>();
+//		List<CourseUrlHolder> courseList = new ArrayList<>();
 //
 //		boolean insideCourseListDiv = false;
 //		try {
@@ -798,7 +798,7 @@ public class EdumallMainCrawler implements Runnable {
 ////							XMLEvent articleElement = nextStartEvent(staxReader, "article");
 //
 //
-//							EdumallCourseUrlHolder courseUrlHolder = new EdumallCourseUrlHolder();
+//							CourseUrlHolder courseUrlHolder = new CourseUrlHolder();
 //							courseList.add(courseUrlHolder);
 //
 //						}
@@ -817,7 +817,7 @@ public class EdumallMainCrawler implements Runnable {
 //								if (thumnaillUrl.startsWith("//")) {
 //									thumnaillUrl = thumnaillUrl.substring(2);
 //								}
-//								EdumallCourseUrlHolder courseUrlHolder = courseList.get(courseList.size() - 1);
+//								CourseUrlHolder courseUrlHolder = courseList.get(courseList.size() - 1);
 //								courseUrlHolder.setCourseThumbnailUrl(thumnaillUrl);
 //								logger.info(String.format("course number=%s || thumnail=%s", courseList.size() - 1, thumnaillUrl));
 //							}
@@ -830,7 +830,7 @@ public class EdumallMainCrawler implements Runnable {
 //								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "gtm_section_recommendation")
 //								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "course-title")) {
 //							String title = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
-//							EdumallCourseUrlHolder lastCourse = courseList.get(courseList.size() - 1);
+//							CourseUrlHolder lastCourse = courseList.get(courseList.size() - 1);
 //							lastCourse.setCourseName(title);
 //							logger.info(String.format("course number=%s || courseName =%s", courseList.size() - 1, title));
 //
@@ -840,7 +840,7 @@ public class EdumallMainCrawler implements Runnable {
 //
 //						if (startElement.getName().getLocalPart().equals("a")
 //								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "gtm_section_recommendation")) {
-//							EdumallCourseUrlHolder lastCourse = courseList.get(courseList.size() - 1);
+//							CourseUrlHolder lastCourse = courseList.get(courseList.size() - 1);
 //							if (lastCourse.getCourseUrl() == null || lastCourse.getCourseUrl().isEmpty()) {
 //								//check for dupplicate a tags
 //								Attribute hrefAttribute = startElement.getAttributeByName(new QName("href"));
@@ -867,8 +867,8 @@ public class EdumallMainCrawler implements Runnable {
 //		return courseList;
 //	}
 
-//	public static void getAllCoursesFromCategory(EdumallCategoryUrlHolder categoryUrlHolder)  {
-////		List<EdumallCourseUrlHolder> courseList = new ArrayList<>();
+//	public static void getAllCoursesFromCategory(CategoryUrlHolder categoryUrlHolder)  {
+////		List<CourseUrlHolder> courseList = new ArrayList<>();
 //
 //
 //		int pageNumber = getTotalPageForEachCategory(categoryUrlHolder);
@@ -884,12 +884,12 @@ public class EdumallMainCrawler implements Runnable {
 //		//todo debugging then change to pageNumber
 //		for (int i = 1; i <= 1; i++) {
 //			String eachPageUri = uri + "&page=" + i;
-//			EdumallCategoryUrlHolder categoryHolderForEachPage =
-//					new EdumallCategoryUrlHolder(categoryUrlHolder.getCategoryName(), eachPageUri);
-//			List<EdumallCourseUrlHolder> courseListFromEachPage =
+//			CategoryUrlHolder categoryHolderForEachPage =
+//					new CategoryUrlHolder(categoryUrlHolder.getCategoryName(), eachPageUri);
+//			List<CourseUrlHolder> courseListFromEachPage =
 //					getCourseListFromEachPage(categoryHolderForEachPage);
 //			//todo get course detail here right after get course list from a category page
-//			for (EdumallCourseUrlHolder courseUrlHolder : courseListFromEachPage) {
+//			for (CourseUrlHolder courseUrlHolder : courseListFromEachPage) {
 //				getCourseDetail(courseUrlHolder);
 //			}
 //		}
@@ -918,7 +918,7 @@ public class EdumallMainCrawler implements Runnable {
 			domainId = DomainDAO.getInstance().getDomainByName(Constants.EDUMALL_DOMAIN_NAME).getId();
 
 			//get all category from domain url
-			List<EdumallCategoryUrlHolder> categories = getCategories();
+			List<CategoryUrlHolder> categories = getCategories();
 
 			//check issuspend
 			synchronized (BaseThread.getInstance()) {
@@ -930,7 +930,7 @@ public class EdumallMainCrawler implements Runnable {
 
 			//domain name and url co truoc trong database
 			//
-			for (EdumallCategoryUrlHolder categoryUrlHolder : categories) {
+			for (CategoryUrlHolder categoryUrlHolder : categories) {
 
 				//map edumall category name -> my general category name -> categoryId
 				String edumallCategoryName = categoryUrlHolder.getCategoryName();
@@ -948,8 +948,6 @@ public class EdumallMainCrawler implements Runnable {
 				BaseThread.getInstance().getExecutor().execute(edumallEachCategoryCrawler);
 //				edumallEachCategoryCrawler.start();
 
-				// wait to make sure server not close
-				Thread.sleep(Constants.BREAK_TIME_CRAWLING);
 
 				//check is suspend
 				synchronized (BaseThread.getInstance()) {

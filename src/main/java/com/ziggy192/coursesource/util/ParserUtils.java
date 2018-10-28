@@ -41,7 +41,6 @@ public class ParserUtils {
 	public static Logger logger = LoggerFactory.getLogger(ParserUtils.class.toString());
 
 
-
 	public static boolean isAlphaCharOrNumberChar(char x) {
 		return (x >= 'a' && x <= 'z') || (x >= '0' && x <= '9');
 
@@ -353,7 +352,7 @@ public class ParserUtils {
 
 		factory.setProperty(XMLInputFactory.IS_VALIDATING, false);
 		factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
-		factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,false);
+		factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
 		return factory;
 	}
 
@@ -447,10 +446,11 @@ public class ParserUtils {
 
 		String[] strings = uri.split("/");
 		for (String string : strings) {
-			result.append(URLEncoder.encode(string, "ISO-8859-1")	);
+			result.append(URLEncoder.encode(string, "ISO-8859-1"));
 		}
 		return result.toString();
 	}
+
 	public static String parseHTML(String uri, String beginSign, String endSign) {
 		if (!uri.startsWith("https://") && !uri.startsWith("http://")) {
 			uri = "https://" + uri;
@@ -458,6 +458,7 @@ public class ParserUtils {
 		StringBuilder htmlBuilder = new StringBuilder();
 
 		boolean isInside = false;
+
 
 		try {
 			URL url = new URL(uri);
@@ -470,20 +471,44 @@ public class ParserUtils {
 
 			while ((inputLine = bufferedReader.readLine()) != null) {
 				if (inputLine.contains(beginSign)) {
+
 					isInside = true;
+					//todo debugging
+					System.out.println(inputLine);
+
+					if (inputLine.contains("<")) {
+						//cut the pre string that dont confort html format
+						//this require begin sign must start with <...
+
+					}
 				}
+
+				if (isInside) {
+
+					int beginIndex = 0;
+					if (beginSign.contains("<")) {
+						beginIndex = inputLine.indexOf(beginSign);
+					}
+
+					int endIndex = inputLine.length();
+					if (inputLine.contains(endSign) && endSign.contains("<")) {
+						endIndex = inputLine.indexOf(endSign);
+					}
+
+					//for small performance optimize
+					if (beginIndex != 0 || endIndex != inputLine.length()) {
+
+						htmlBuilder.append(inputLine.substring(beginIndex, endIndex));
+					} else {
+						htmlBuilder.append(inputLine);
+					}
+
+				}
+
 				if (isInside && inputLine.contains(endSign)) {
 					isInside = false;
 					break;
 				}
-
-				if (isInside) {
-					inputLine = replaceEntities(inputLine);
-					htmlBuilder.append(inputLine);
-//					logger.info(inputLine);
-
-				}
-
 
 			}
 
@@ -494,20 +519,23 @@ public class ParserUtils {
 		}
 
 
-
-		return StringEscapeUtils.unescapeHtml4(htmlBuilder.toString());
+		String content = htmlBuilder.toString();
+		content = StringEscapeUtils.unescapeHtml4(content);
+		content = replaceEntities(content);
+		return content;
 	}
 
 
 	public static String replaceEntities(String content) {
 		content = content
-				.replace("&","&amp;")
+				.replace("&", "&amp;")
 				.replace("&#38;nbsp;", "")
 				.replace("\t", "")
 				.replace("<br>", "")
 				.replace("</br>", "");
 		return content;
 	}
+
 	public static boolean checkAttributeContainsKey(XMLEvent eventElement, String attributeName, String key) {
 //
 //		if (eventElement.isStartElement()) {
@@ -519,7 +547,7 @@ public class ParserUtils {
 //			}
 //		}
 
-		return checkAttributeContainsKey(eventElement,attributeName,new String[]{key});
+		return checkAttributeContainsKey(eventElement, attributeName, new String[]{key});
 	}
 
 
@@ -605,7 +633,7 @@ public class ParserUtils {
 			if (event.isEndElement()) {
 				stackCount--;
 				EndElement endElement = event.asEndElement();
-				result += String.format("</%s>",endElement.getName().getLocalPart());
+				result += String.format("</%s>", endElement.getName().getLocalPart());
 			}
 
 			if (stackCount <= 0) {
@@ -665,6 +693,7 @@ public class ParserUtils {
 		}
 
 	}
+
 	public static String getAttributeByName(StartElement startElement, String attributeName) {
 		Attribute attribute = startElement.getAttributeByName(new QName(attributeName));
 		if (attribute != null) {

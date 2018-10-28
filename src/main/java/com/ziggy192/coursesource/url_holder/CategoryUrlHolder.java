@@ -1,10 +1,10 @@
 package com.ziggy192.coursesource.url_holder;
 
-public class EdumallCategoryUrlHolder {
+public class CategoryUrlHolder {
 	private String categoryName;
 	private String categoryURL;
 
-	public EdumallCategoryUrlHolder(String categoryName, String categoryURL) {
+	public CategoryUrlHolder(String categoryName, String categoryURL) {
 		this.categoryName = categoryName;
 		this.categoryURL = categoryURL;
 	}
@@ -27,7 +27,7 @@ public class EdumallCategoryUrlHolder {
 
 	@Override
 	public String toString() {
-		return "EdumallCategoryUrlHolder{" +
+		return "CategoryUrlHolder{" +
 				"categoryName='" + categoryName + '\'' +
 				", categoryURL='" + categoryURL + '\'' +
 				'}';
