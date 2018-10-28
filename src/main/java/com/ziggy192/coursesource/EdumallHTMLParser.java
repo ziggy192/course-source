@@ -1,6 +1,6 @@
 package com.ziggy192.coursesource;
 
-import com.ziggy192.coursesource.util.Utils;
+import com.ziggy192.coursesource.util.ParserUtils;
 
 public class EdumallHTMLParser {
 
@@ -13,6 +13,6 @@ public class EdumallHTMLParser {
 		System.out.println(filePath);
 //		String filePath = EdumallHTMLParser.class.getClassLoader().getResource("edumall.vn.html").getFile();
 //		String filePath = EdumallHTMLParser.class.getClassLoader().p.getCodeSource().getLocation().getPath()+"/../"
-		Utils.parseHTML(filePath, uri);
+		ParserUtils.parseHTML(filePath, uri);
 	}
 }

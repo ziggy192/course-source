@@ -10,7 +10,6 @@ import java.util.List;
 
 public class BaseDAO<T, PK> implements IGeneticDAO<T,PK>{
 	protected Class<T> entityClass;
-
 	public BaseDAO() {
 		ParameterizedType geneticSupperClass = (ParameterizedType) this.getClass().getGenericSuperclass();
 		entityClass = (Class<T>) geneticSupperClass.getActualTypeArguments()[0];

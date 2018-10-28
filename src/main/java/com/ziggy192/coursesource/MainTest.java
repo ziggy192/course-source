@@ -2,11 +2,15 @@ package com.ziggy192.coursesource;
 
 import com.ziggy192.coursesource.crawler.EdumallCourseDetailCrawler;
 import com.ziggy192.coursesource.crawler.EdumallCourseInEachCategoryPageCrawler;
+import com.ziggy192.coursesource.crawler.EdumallMainCrawler;
+import com.ziggy192.coursesource.dao.DomainDAO;
 import com.ziggy192.coursesource.entity.CategoryEntity;
 import com.ziggy192.coursesource.entity.DomainEntity;
 import com.ziggy192.coursesource.url_holder.EdumallCourseUrlHolder;
 import com.ziggy192.coursesource.util.DBUtils;
 import jaxb.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -22,6 +26,8 @@ import java.sql.DriverManager;
 
 public class MainTest {
 
+	private static Logger logger = LoggerFactory.getLogger(MainTest.class.toString());
+
 	public static void main(String[] args) throws UnsupportedEncodingException {
 //		testInsertDomain(Constants.EDUMALL_DOMAIN_NAME, Constants.EDUMALL_DOMAIN);
 //		testValidate();
@@ -31,10 +37,20 @@ public class MainTest {
 //		testJDBCConnection();
 //		testValidate();
 
-		testGetCourseDetail();
+//		testGetCourseDetail();
+//		testGetDomainByName(Constants.EDUMALL_DOMAIN_NAME);
+//		testGetCourseDetail();
+
 	}
 
 
+
+	private static void testGetDomainByName(String domainName) {
+		DomainEntity domainByName = DomainDAO.getInstance().getDomainByName(domainName);
+		System.out.println(domainByName);
+
+
+	}
 	private static void testJDBCConnection() {
 		String jdbcURL = "jdbc:mysql://localhost:3306/course_source";
 		String user = "root";
@@ -64,20 +80,22 @@ public class MainTest {
 
 	private static void testGetCourseDetail() {
 
-		EdumallCourseUrlHolder dummyCourseUrlHolder = new EdumallCourseUrlHolder("Guitar đệm hát trong 30 ngày"
-				, "http://d1nzpkv5wwh1xf.cloudfront.net/640/k-5768aeb1047c995f75fdbf6b/20170817-anhdaidienmoi_thinh/hiennt01.png"
+		EdumallCourseUrlHolder dummyCourseUrlHolder = new EdumallCourseUrlHolder("Tạo slide trình bày ấn tượng với Prezi, Google trình chiếu và Power Point"
+				, "d1nzpkv5wwh1xf.cloudfront.net/640/k-5768aeb1047c995f75fdbf6b/20180626-/14-luu-y-giup-ban-thuyet-trin.png"
 				, "edumall.vn/course/tao-slide-trinh-bay-an-tuong-voi-prezi-google-trinh-chieu-va-power-point");
 //				, "https://edumall.vn/course/dao-tao-ky-thuat-truong-cửa-hang-gas");
 //				, "https://edumall.vn/course/tao-slide-trinh-bay-an-tuong-voi-prezi-google-trinh-chieu-va-power-point");
 
+		EdumallMainCrawler.domainId = 3;
 
-		new Thread(new EdumallCourseDetailCrawler(dummyCourseUrlHolder, 1)).start();
+		new Thread(new EdumallCourseDetailCrawler(dummyCourseUrlHolder, 4)).start();
 
 //		getCourseDetail(dummyCourseUrlHolder);
 
 	}
 
-	public static void testValidate() {
+
+	public static void testValidateCourse() {
 
 		try {
 			JAXBContext jaxbContext = JAXBContext.newInstance(CategoryEntity.class);
@@ -91,11 +109,11 @@ public class MainTest {
 			jaxbContext.createMarshaller().marshal(category, byteOutputStream);
 			ByteArrayInputStream byteInputStream = new ByteArrayInputStream(byteOutputStream.toByteArray());
 
-			DummyDatabase.validateXMLBeforeSaveToDB(byteInputStream);
+//			DummyDatabase.validateXMLBeforeSaveToDB(byteInputStream);
 		} catch (JAXBException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
 		}
 
 	}

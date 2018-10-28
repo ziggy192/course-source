@@ -1,9 +1,8 @@
 package com.ziggy192.coursesource.crawler;
 
 import com.ziggy192.coursesource.Constants;
-import com.ziggy192.coursesource.url_holder.EdumallCategoryUrlHolder;
 import com.ziggy192.coursesource.url_holder.EdumallCourseUrlHolder;
-import com.ziggy192.coursesource.util.Utils;
+import com.ziggy192.coursesource.util.ParserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,10 +12,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -73,15 +68,15 @@ public class EdumallCourseInEachCategoryPageCrawler implements Runnable {
 		String endSign = "</section>";
 //		String endSign = "form class='form-paginate form-inline'";
 
-		String htmlContent = Utils.parseHTML(uri, beginSign, endSign);
-		htmlContent = Utils.addMissingTag(htmlContent);
+		String htmlContent = ParserUtils.parseHTML(uri, beginSign, endSign);
+		htmlContent = ParserUtils.addMissingTag(htmlContent);
 
 
 		List<EdumallCourseUrlHolder> courseList = new ArrayList<>();
 
 		boolean insideCourseListDiv = false;
 		try {
-			XMLEventReader staxReader = Utils.getStaxReader(htmlContent);
+			XMLEventReader staxReader = ParserUtils.getStaxReader(htmlContent);
 			while (staxReader.hasNext()) {
 				XMLEvent event = staxReader.nextEvent();
 				if (event.isStartElement()) {
@@ -93,7 +88,7 @@ public class EdumallCourseInEachCategoryPageCrawler implements Runnable {
 					//<div class='list-courses-filter'
 					if (!insideCourseListDiv) {
 						{
-							if (Utils.checkAttributeContainsKey(startElement, "class", "list-courses-filter")) {
+							if (ParserUtils.checkAttributeContainsKey(startElement, "class", "list-courses-filter")) {
 								insideCourseListDiv = true;
 							}
 						}
@@ -116,7 +111,7 @@ public class EdumallCourseInEachCategoryPageCrawler implements Runnable {
 
 						//todo traverse each div with  <div class='col-4'>
 						if (startElement.getName().getLocalPart().equals("div")
-								&& Utils.checkAttributeContainsKey(startElement, "class", "col-4")) {
+								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "col-4")) {
 //							courseCount++;
 //							XMLEvent articleElement = nextStartEvent(staxReader, "article");
 
@@ -130,9 +125,9 @@ public class EdumallCourseInEachCategoryPageCrawler implements Runnable {
 						// data-src="//d1nzpkv5wwh1xf.cloudfront.net/320/k-57b67d6e60af25054a055b20/20170817-tungnt9image1708/thanhnd04.png"
 
 						if (startElement.getName().getLocalPart().equals("div")
-								&& Utils.checkAttributeContainsKey(startElement, "class", "course-header")
-								&& Utils.checkAttributeContainsKey(startElement, "class", "img-thumb")
-								&& Utils.checkAttributeContainsKey(startElement, "class", "gtm_section_recommendation")) {
+								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "course-header")
+								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "img-thumb")
+								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "gtm_section_recommendation")) {
 							Attribute thumnailAttribute = startElement.getAttributeByName(new QName("data-src"));
 							if (thumnailAttribute != null) {
 
@@ -150,9 +145,9 @@ public class EdumallCourseInEachCategoryPageCrawler implements Runnable {
 						//todo get CourseName
 						//	<h5 class="gtm_section_recommendation course-title" xpath="1">Microsoft Word cơ bản và hiệu quả</h5>
 						if (startElement.getName().getLocalPart().contains("h")
-								&& Utils.checkAttributeContainsKey(startElement, "class", "gtm_section_recommendation")
-								&& Utils.checkAttributeContainsKey(startElement, "class", "course-title")) {
-							String title = Utils.getContentAndJumpToEndElement(staxReader, startElement);
+								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "gtm_section_recommendation")
+								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "course-title")) {
+							String title = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
 							EdumallCourseUrlHolder lastCourse = courseList.get(courseList.size() - 1);
 							lastCourse.setCourseName(title);
 							logger.info(String.format("course number=%s || courseName =%s", courseList.size() - 1, title));
@@ -162,7 +157,7 @@ public class EdumallCourseInEachCategoryPageCrawler implements Runnable {
 						//<a class='gtm_section_recommendation's
 
 						if (startElement.getName().getLocalPart().equals("a")
-								&& Utils.checkAttributeContainsKey(startElement, "class", "gtm_section_recommendation")) {
+								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "gtm_section_recommendation")) {
 							EdumallCourseUrlHolder lastCourse = courseList.get(courseList.size() - 1);
 							if (lastCourse.getCourseUrl() == null || lastCourse.getCourseUrl().isEmpty()) {
 								//check for dupplicate a tags

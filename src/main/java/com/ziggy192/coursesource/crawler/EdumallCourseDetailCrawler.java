@@ -1,11 +1,11 @@
 package com.ziggy192.coursesource.crawler;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.ziggy192.coursesource.DummyDatabase;
+import com.ziggy192.coursesource.dao.CourseDAO;
+import com.ziggy192.coursesource.entity.CourseEntity;
 import com.ziggy192.coursesource.url_holder.EdumallCourseUrlHolder;
 import com.ziggy192.coursesource.util.Formater;
-import com.ziggy192.coursesource.util.Utils;
-import jaxb.CourseDTO;
+import com.ziggy192.coursesource.util.ParserUtils;
+import com.ziggy192.coursesource.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.java2d.xr.MutableInteger;
@@ -16,13 +16,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -81,9 +75,9 @@ public class EdumallCourseDetailCrawler implements Runnable {
 //			}
 
 
-			String htmlContent = Utils.parseHTML(uri, beginSign, endSign);
+			String htmlContent = ParserUtils.parseHTML(uri, beginSign, endSign);
 //		System.out.println(htmlContent);
-			htmlContent = Utils.addMissingTag(htmlContent);
+			htmlContent = ParserUtils.addMissingTag(htmlContent);
 //		System.out.println(newContent);
 
 
@@ -91,21 +85,21 @@ public class EdumallCourseDetailCrawler implements Runnable {
 			String videoUrl;
 			double costValue = 0;
 
-			CourseDTO courseDTO = new CourseDTO();
+			CourseEntity courseEntity = new CourseEntity();
 
-			courseDTO.setCategoryId(categoryId);
+			courseEntity.setCategoryId(categoryId);
 
 
-			courseDTO.setSourceURL(courseDetailUrlHolder.getCourseUrl());
-			courseDTO.setName(courseDetailUrlHolder.getCourseName());
-			courseDTO.setImageURL(courseDetailUrlHolder.getCourseThumbnailUrl());
+			courseEntity.setSourceUrl(courseDetailUrlHolder.getCourseUrl());
+			courseEntity.setName(courseDetailUrlHolder.getCourseName());
+			courseEntity.setImageUrl(courseDetailUrlHolder.getCourseThumbnailUrl());
 
 			//todo get providerid from EdumallMainCrawler static or singleton
 			//get providerid = 'edumall'
-			courseDTO.setDomainId(EdumallMainCrawler.domainId);
+			courseEntity.setDomainId(EdumallMainCrawler.domainId);
 
 			try {
-				XMLEventReader staxReader = Utils.getStaxReader(htmlContent);
+				XMLEventReader staxReader = ParserUtils.getStaxReader(htmlContent);
 				while (staxReader.hasNext()) {
 					XMLEvent event = staxReader.nextEvent();
 					if (event.isStartElement()) {
@@ -117,8 +111,8 @@ public class EdumallCourseDetailCrawler implements Runnable {
 
 						//<iframe allowfullscreen="" frameborder="0" height="100%" src="https://www.youtube.com/embed/cyGq22d1sbk?modestbranding=0&amp;amp;rel=0&amp;amp;showinfo=0" width="100%"></iframe>
 						if (startElement.getName().getLocalPart().equals("iframe")
-							//								&& Utils.checkAttributeContainsKey(startElement, "class", "ytp-title-link")
-							//								&& Utils.checkAttributeContainsKey(startElement, "class", "yt-uix-sessionlink")
+							//								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "ytp-title-link")
+							//								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "yt-uix-sessionlink")
 						) {
 
 							Attribute srcAtt = startElement.getAttributeByName(new QName("src"));
@@ -126,7 +120,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 							if (srcAtt != null) {
 								videoUrl = srcAtt.getValue();
 								logger.info("VideURL=" + videoUrl);
-								courseDTO.setPreviewVideoURL(videoUrl);
+								courseEntity.setPreviewVideoUrl(videoUrl);
 
 							}
 
@@ -137,13 +131,13 @@ public class EdumallCourseDetailCrawler implements Runnable {
 						//<p class="col-md-12 col-xs-12 price" style="" xpath="1">699,000đ</p>
 
 						if (startElement.getName().getLocalPart().equals("p")
-								&& (Utils.checkAttributeContainsKey(startElement, "class", new String[]{
+								&& (ParserUtils.checkAttributeContainsKey(startElement, "class", new String[]{
 								"col-md-12", "col-xs-12", "price"})
-								|| Utils.checkAttributeContainsKey(startElement, "class", new String[]{
+								|| ParserUtils.checkAttributeContainsKey(startElement, "class", new String[]{
 								"price_sale"
 						}))
 						) {
-							String cost = Utils.getContentAndJumpToEndElement(staxReader, startElement);
+							String cost = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
 							if (!cost.isEmpty()) {
 
 								//get int value from cost
@@ -154,7 +148,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 									}
 								}
 								logger.info("Cost=" + costValue);
-								courseDTO.setCost(new BigDecimal(costValue));
+								courseEntity.setCost(costValue);
 							}
 						}
 
@@ -165,16 +159,16 @@ public class EdumallCourseDetailCrawler implements Runnable {
 						//<span class="pull-right">05:58:48</span>
 						//</div>
 						if (startElement.getName().getLocalPart().equals("div")
-								&& Utils.checkAttributeContainsKey(startElement, "class", "prop")) {
-							Utils.nextStartEvent(staxReader, "i", new String[]{
+								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "prop")) {
+							ParserUtils.nextStartEvent(staxReader, "i", new String[]{
 									"fas", "fa-clock"
 							});
-							startElement = Utils.nextStartEvent(staxReader, "span", new String[]{"pull-right"}).asStartElement();
-							String durationStr = Utils.getContentAndJumpToEndElement(staxReader, startElement);
+							startElement = ParserUtils.nextStartEvent(staxReader, "span", new String[]{"pull-right"}).asStartElement();
+							String durationStr = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
 							if (!durationStr.isEmpty()) {
 								int duration = toDuration(durationStr);
 								logger.info("Duration In seconds=" + duration);
-								courseDTO.setDuration(duration);
+								courseEntity.setDuration(duration);
 							}
 						}
 
@@ -192,7 +186,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 						</div>
 						</div>*/
 						if (startElement.getName().getLocalPart().equals("section")
-								&& Utils.checkAttributeContainsKey(startElement, "id", "general-author-tab")) {
+								&& ParserUtils.checkAttributeContainsKey(startElement, "id", "general-author-tab")) {
 							//traverse to end section
 							String authorInfo = Formater.toHeading2("Tiểu sử");
 
@@ -208,12 +202,12 @@ public class EdumallCourseDetailCrawler implements Runnable {
 									startElement = event.asStartElement();
 
 									if (startElement.getName().getLocalPart().equals("div")
-											&& Utils.checkAttributeContainsKey(startElement, "class", "name")) {
-										String authorName = Utils.getContentAndJumpToEndElement(staxReader, startElement);
+											&& ParserUtils.checkAttributeContainsKey(startElement, "class", "name")) {
+										String authorName = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
 										stackCount--;
 										if (!authorName.isEmpty()) {
 											logger.info("Author=" + authorName);
-											courseDTO.setAuthor(authorName);
+											courseEntity.setAuthor(authorName);
 										}
 									}
 
@@ -226,15 +220,15 @@ public class EdumallCourseDetailCrawler implements Runnable {
 										}
 
 										logger.info("AuthorImage=" + imageUrl);
-										courseDTO.setAuthorImageURL(imageUrl);
+										courseEntity.setAuthorImageUrl(imageUrl);
 									}
-									if (Utils.checkAttributeContainsKey(startElement, "id", "author_info")) {
+									if (ParserUtils.checkAttributeContainsKey(startElement, "id", "author_info")) {
 										insideAuthorInfo = true;
 
 									}
 									if (insideAuthorInfo) {
 										if (startElement.getName().getLocalPart().equals("li")) {
-											String content = Utils.getContentAndJumpToEndElement(staxReader, startElement);
+											String content = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
 											stackCount--;
 											content = Formater.toParagraph(content);
 											authorInfo += content;
@@ -251,7 +245,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 							authorInfo = Formater.toRoot(authorInfo);
 							logger.info("AuthorInfo=" + authorInfo);
 
-							courseDTO.setAuthorDescription(authorInfo);
+							courseEntity.setAuthorDescription(authorInfo);
 						}
 
 						// TODO: get overview description
@@ -280,7 +274,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 						<div class="clear"></div>
 						</section>*/
 						if (startElement.getName().getLocalPart().equals("section")
-								&& Utils.checkAttributeContainsKey(startElement, "id", "general-info-tab")) {
+								&& ParserUtils.checkAttributeContainsKey(startElement, "id", "general-info-tab")) {
 
 							//traverse to end section
 							int stackCount = 1;
@@ -291,9 +285,9 @@ public class EdumallCourseDetailCrawler implements Runnable {
 									stackCount++;
 									startElement = event.asStartElement();
 
-									if (Utils.checkAttributeContainsKey(startElement, "class", "title")) {
+									if (ParserUtils.checkAttributeContainsKey(startElement, "class", "title")) {
 										//title
-										String title = Utils.getContentAndJumpToEndElement(staxReader, startElement);
+										String title = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
 										stackCount--; // getContentAndJumpToEndElement() traverse to EndElement
 
 										title = Formater.toHeading1(title);
@@ -303,12 +297,12 @@ public class EdumallCourseDetailCrawler implements Runnable {
 
 									}
 
-									if (Utils.checkAttributeContainsKey(startElement, "class", "content_benefit")) {
+									if (ParserUtils.checkAttributeContainsKey(startElement, "class", "content_benefit")) {
 										//content benefit
-										startElement = Utils.nextStartEvent(staxReader, "span").asStartElement();
+										startElement = ParserUtils.nextStartEvent(staxReader, "span").asStartElement();
 										MutableInteger mutableStack = new MutableInteger(stackCount);
 
-										String contentBenefit = Utils.getContentAndJumpToEndElement(staxReader, startElement);
+										String contentBenefit = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
 										stackCount--; // getContentAndJumpToEndElement() traverse to EndElement
 										contentList.add(contentBenefit);
 									}
@@ -351,7 +345,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 							</section>
 						*/
 						if (startElement.getName().getLocalPart().equals("section")
-								&& Utils.checkAttributeContainsKey(startElement, "class", "section_requirement")
+								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "section_requirement")
 						) {
 							//traverse to end section
 							int stackCount = 1;
@@ -364,8 +358,8 @@ public class EdumallCourseDetailCrawler implements Runnable {
 									startElement = event.asStartElement();
 
 									//title
-									if (Utils.checkAttributeContainsKey(startElement, "class", "title")) {
-										String title = Utils.getContentAndJumpToEndElement(staxReader, startElement);
+									if (ParserUtils.checkAttributeContainsKey(startElement, "class", "title")) {
+										String title = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
 										stackCount--; // getContentAndJumpToEndElement() traverse to EndElement
 
 										overviewDescription += Formater.toHeading1(title);
@@ -374,7 +368,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 
 									//list
 									if (startElement.getName().getLocalPart().equals("li")) {
-										String listItem = Utils.getContentAndJumpToEndElement(staxReader, startElement);
+										String listItem = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
 										stackCount--; // getContentAndJumpToEndElement() traverse to EndElement
 
 										contentList.add(listItem);
@@ -406,7 +400,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 						*/
 
 						if (startElement.getName().getLocalPart().equals("section")
-								&& Utils.checkAttributeContainsKey(startElement, "class", "section_description")) {
+								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "section_description")) {
 							//traverse to end section
 							int stackCount = 1;
 
@@ -417,8 +411,8 @@ public class EdumallCourseDetailCrawler implements Runnable {
 									startElement = event.asStartElement();
 
 									//title
-									if (Utils.checkAttributeContainsKey(startElement, "class", "title")) {
-										String title = Utils.getContentAndJumpToEndElement(staxReader, startElement);
+									if (ParserUtils.checkAttributeContainsKey(startElement, "class", "title")) {
+										String title = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
 										stackCount--; // getContentAndJumpToEndElement() traverse to EndElement
 
 										overviewDescription += Formater.toHeading1(title);
@@ -427,8 +421,8 @@ public class EdumallCourseDetailCrawler implements Runnable {
 
 									//content
 									if (startElement.getName().getLocalPart().equals("div")
-											&& Utils.checkAttributeContainsKey(startElement, "class", "text_description")) {
-										String htmlDescriptionContent = Utils.getAllHtmlContentAndJumpToEndElement(staxReader, startElement);
+											&& ParserUtils.checkAttributeContainsKey(startElement, "class", "text_description")) {
+										String htmlDescriptionContent = ParserUtils.getAllHtmlContentAndJumpToEndElement(staxReader, startElement);
 										stackCount--;
 										overviewDescription += htmlDescriptionContent;
 									}
@@ -459,7 +453,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 						 * */
 
 
-						if (Utils.checkAttributeContainsKey(startElement, "id", "section_lecture")) {
+						if (ParserUtils.checkAttributeContainsKey(startElement, "id", "section_lecture")) {
 							//traverse
 							String syllabus = "";
 							int stackCount = 1;
@@ -470,9 +464,9 @@ public class EdumallCourseDetailCrawler implements Runnable {
 								if (event.isStartElement()) {
 									stackCount++;
 									startElement = event.asStartElement();
-									if (Utils.checkAttributeContainsKey(startElement, "class", "menu-title")) {
+									if (ParserUtils.checkAttributeContainsKey(startElement, "class", "menu-title")) {
 
-										String content = Utils.getContentAndJumpToEndElement(staxReader, startElement);
+										String content = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
 										stackCount--;
 										content = Formater.toHeading3(content);
 
@@ -485,8 +479,8 @@ public class EdumallCourseDetailCrawler implements Runnable {
 										syllabus += content;
 
 									}
-									if (Utils.checkAttributeContainsKey(startElement, "class", "lecturetitle")) {
-										String lectureName = Utils.getContentAndJumpToEndElement(staxReader, startElement);
+									if (ParserUtils.checkAttributeContainsKey(startElement, "class", "lecturetitle")) {
+										String lectureName = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
 										stackCount--;
 										lectureNameList.add(lectureName);
 									}
@@ -506,7 +500,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 							}
 
 							syllabus = Formater.toRoot(syllabus);
-							courseDTO.setSyllabus(syllabus);
+							courseEntity.setSyllabus(syllabus);
 							logger.info("Syllabus=" + syllabus);
 
 						}
@@ -525,17 +519,23 @@ public class EdumallCourseDetailCrawler implements Runnable {
 						//(153)
 						//</div>
 						if (startElement.getName().getLocalPart().equals("div")
-								&& Utils.checkAttributeContainsKey(startElement, "class", "intro_course")) {
+								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "intro_course")) {
 							//						startElement = nextStartEvent(staxReader, "div", new String[]{"star-rating"}).asStartElement();
 							//					}
 							//					if (startElement.getName().getLocalPart().equals("div")
-							//							&& Utils.checkAttributeContainsKey(startElement, "class", "star-rating")
+							//							&& ParserUtils.checkAttributeContainsKey(startElement, "class", "star-rating")
 							//					) {
-							startElement = Utils.nextStartEvent(staxReader, "b").asStartElement();
+							startElement = ParserUtils.nextStartEvent(staxReader, "b").asStartElement();
 
-							String rating = Utils.getContentAndJumpToEndElement(staxReader, startElement);
-							courseDTO.setRating(new BigDecimal(rating));
+							String rating = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
+							try {
+								double ratingDouble = Double.parseDouble(rating);
+								courseEntity.setRating(ratingDouble);
+							} catch (NumberFormatException e) {
+								e.printStackTrace();
+							}
 							logger.info("Rating=" + rating);
+
 							event = staxReader.nextEvent();
 							if (event.isCharacters()) {
 								String ratingNumberStr = event.asCharacters().getData();
@@ -546,7 +546,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 								} catch (NumberFormatException e) {
 									e.printStackTrace();
 								}
-								courseDTO.setRatingNumber(ratingNumber);
+								courseEntity.setRatingNumber(ratingNumber);
 								logger.info("RatingNumber=" + ratingNumber);
 							}
 						}
@@ -558,7 +558,8 @@ public class EdumallCourseDetailCrawler implements Runnable {
 
 				overviewDescription = Formater.toRoot(overviewDescription);
 				logger.info("FullOverviewDes=" + overviewDescription);
-				courseDTO.setOverviewDescription(overviewDescription);
+				courseEntity.setOverviewDescription(overviewDescription);
+
 
 
 				//if no exception then save to data base
@@ -568,8 +569,10 @@ public class EdumallCourseDetailCrawler implements Runnable {
 				//get the rest except tag from above
 				//get categoryid
 
-
-				DummyDatabase.validateCourseAndSaveToDB(courseDTO);
+				//todo set hashing
+				courseEntity.setHash(StringUtils.hashCourse(courseEntity));
+				CourseDAO.getInstance().validateCourseAndSaveToDB(courseEntity);
+//				DummyDatabase.validateCourseAndSaveToDB(courseEntity);
 
 			} catch (XMLStreamException e) {
 				e.printStackTrace();

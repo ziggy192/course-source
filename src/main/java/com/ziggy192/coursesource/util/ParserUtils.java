@@ -35,10 +35,10 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class Utils {
+public class ParserUtils {
 
-	//	public static Logger logger = Logger.getLogger(Utils.class.toString());
-	public static Logger logger = LoggerFactory.getLogger(Utils.class.toString());
+	//	public static Logger logger = Logger.getLogger(ParserUtils.class.toString());
+	public static Logger logger = LoggerFactory.getLogger(ParserUtils.class.toString());
 
 
 
@@ -233,7 +233,7 @@ public class Utils {
 					Attribute classAttribute = startElement.getAttributeByName(new QName("class"));
 					if (classAttribute != null) {
 //						found = true;
-						found = Utils.checkAttributeContainsKey(startElement, "class", classAttributeValues);
+						found = ParserUtils.checkAttributeContainsKey(startElement, "class", classAttributeValues);
 //						for (String classAttributeValue : classAttributeValues) {
 //							if (!classAttribute.getValue().contains(classAttributeValue)) {
 //								found = false;

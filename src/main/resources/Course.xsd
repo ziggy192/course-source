@@ -5,7 +5,7 @@
 
     <xs:simpleType name="URL">
         <xs:restriction base="xs:string">
-            <xs:pattern value="(https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}[-a-zA-Z0-9@:%_\+.~#?&amp;/=]*"/>
+            <xs:pattern value="(https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}.*"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -47,6 +47,7 @@
                 <xs:element name="PreviewVideoURL" type="xs:string" minOccurs="0"/>
                 <xs:element name="ImageURL" type="URL" />
                 <xs:element name="SourceURL" type="URL"/>
+                <xs:element name="Hash" type="xs:int" />
 
             </xs:sequence>
         </xs:complexType>

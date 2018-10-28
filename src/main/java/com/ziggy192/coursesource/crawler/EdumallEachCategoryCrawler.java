@@ -1,8 +1,6 @@
 package com.ziggy192.coursesource.crawler;
 
-import com.ziggy192.coursesource.url_holder.EdumallCategoryUrlHolder;
-import com.ziggy192.coursesource.url_holder.EdumallCourseUrlHolder;
-import com.ziggy192.coursesource.util.Utils;
+import com.ziggy192.coursesource.util.ParserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +11,6 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import java.util.Iterator;
-import java.util.List;
 
 public class EdumallEachCategoryCrawler implements Runnable{
 
@@ -34,13 +31,13 @@ public class EdumallEachCategoryCrawler implements Runnable{
 		String beginSign = "class='list-paginate'";
 		String endSign = "form class='form-paginate form-inline'";
 
-		String htmlContent = Utils.parseHTML(categoryUrl, beginSign, endSign);
+		String htmlContent = ParserUtils.parseHTML(categoryUrl, beginSign, endSign);
 
-		htmlContent = Utils.addMissingTag(htmlContent);
+		htmlContent = ParserUtils.addMissingTag(htmlContent);
 		System.out.println(htmlContent);
 		int pageCount = 1;
 		try {
-			XMLEventReader staxReader = Utils.getStaxReader(htmlContent);
+			XMLEventReader staxReader = ParserUtils.getStaxReader(htmlContent);
 			boolean insidePaginationDiv = false;
 			while (staxReader.hasNext()) {
 				XMLEvent event = staxReader.nextEvent();
@@ -75,11 +72,11 @@ public class EdumallEachCategoryCrawler implements Runnable{
 						//todo get all <em class="current"> or <a href="...&page=[number]> content
 
 
-						if (Utils.checkAttributeEqualsKey(startElement, "class", "current")
-								|| Utils.getAttributeByName(startElement, "href").contains("page=")
+						if (ParserUtils.checkAttributeEqualsKey(startElement, "class", "current")
+								|| ParserUtils.getAttributeByName(startElement, "href").contains("page=")
 						) {
 
-							String pageContent = Utils.getContentAndJumpToEndElement(staxReader, startElement);
+							String pageContent = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
 							try {
 								int pageNumber = Integer.parseInt(pageContent);
 

@@ -16,7 +16,7 @@
     <DomainId>1</DomainId>
     <CategoryId>1</CategoryId>
     <OverviewDescription>des</OverviewDescription>
-    <AuthorImageURL>https://edumall.vn/course/doi-mat-va-chien-thang-ung-thu</AuthorImageURL>
+    <AuthorImageURL>https://edumall.vn/course/khoa-hoc-3d-kim-thiet-ke-"ngan-hoa-khoe-sac"</AuthorImageURL>
     <Rating>4.9</Rating>
     <RatingNumber>123123</RatingNumber>
     <Cost>123123</Cost>
@@ -34,4 +34,5 @@
     <PreviewVideoURL>adfasdf</PreviewVideoURL>
     <ImageURL>asdfasdf.com</ImageURL>
     <SourceURL>afasdf.com</SourceURL>
+    <Hash>1231231313</Hash>
 </Course>

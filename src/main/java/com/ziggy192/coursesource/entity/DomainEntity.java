@@ -5,6 +5,10 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "Domain", schema = "course_source", catalog = "")
+@NamedQueries(
+		@NamedQuery(name = "Domain.getDomainByDomainName",query = "select d from DomainEntity  d where d.name like :domainName")
+
+)
 public class DomainEntity {
 	private int id;
 	private String name;
@@ -53,5 +57,14 @@ public class DomainEntity {
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, name, domainUrl);
+	}
+
+	@Override
+	public String toString() {
+		return "DomainEntity{" +
+				"id=" + id +
+				", name='" + name + '\'' +
+				", domainUrl='" + domainUrl + '\'' +
+				'}';
 	}
 }

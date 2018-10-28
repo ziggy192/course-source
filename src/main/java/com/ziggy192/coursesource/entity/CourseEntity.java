@@ -63,13 +63,14 @@ import java.util.Objects;
 		"syllabus",
 		"previewVideoUrl",
 		"imageUrl",
-		"sourceUrl"
+		"sourceUrl",
+		"hash"
 })
 @XmlRootElement(name = "Course", namespace = "www.Course.com")
 @Entity
 @Table(name = "Course", schema = "course_source")
 @NamedQueries(
-		@NamedQuery(name = "CourseEntity.findAll",query = "select c from CourseEntity c")
+		@NamedQuery(name = "CourseEntity.findCourseByHashing",query = "select c from CourseEntity c where c.hash = :hash")
 
 )
 public class CourseEntity {
@@ -84,11 +85,12 @@ public class CourseEntity {
 	private Double rating;
 	private Integer ratingNumber;
 	private Double cost;
-	private String duration;
+	private int duration;
 	private String syllabus;
 	private String previewVideoUrl;
 	private String imageUrl;
 	private String sourceUrl;
+	private int hash;
 
 	@Id
 	@Column(name = "Id", nullable = false)
@@ -233,11 +235,11 @@ public class CourseEntity {
 	@XmlElement(name = "Duration", namespace = "www.Course.com", required = true)
 	@XmlSchemaType(name = "nonNegativeInteger")
 
-	public String getDuration() {
+	public int getDuration() {
 		return duration;
 	}
 
-	public void setDuration(String duration) {
+	public void setDuration(int duration) {
 		this.duration = duration;
 	}
 
@@ -290,6 +292,17 @@ public class CourseEntity {
 	}
 
 
+	@Basic
+	@Column(name = "Hash", nullable = true)
+	@XmlElement(name = "Hash", namespace = "www.Course.com", required = false)
+	public int getHash() {
+		return hash;
+	}
+
+	public void setHash(int hash) {
+		this.hash = hash;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -316,5 +329,27 @@ public class CourseEntity {
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, name, author, authorDescription, domainId, categoryId, overviewDescription, authorImageUrl, rating, ratingNumber, cost, duration, syllabus, previewVideoUrl, imageUrl, sourceUrl);
+	}
+
+	@Override
+	public String toString() {
+		return "CourseEntity{" +
+				"id=" + id +
+				", name='" + name + '\'' +
+				", author='" + author + '\'' +
+				", authorDescription='" + authorDescription + '\'' +
+				", domainId=" + domainId +
+				", categoryId=" + categoryId +
+				", overviewDescription='" + overviewDescription + '\'' +
+				", authorImageUrl='" + authorImageUrl + '\'' +
+				", rating=" + rating +
+				", ratingNumber=" + ratingNumber +
+				", cost=" + cost +
+				", duration=" + duration +
+				", syllabus='" + syllabus + '\'' +
+				", previewVideoUrl='" + previewVideoUrl + '\'' +
+				", imageUrl='" + imageUrl + '\'' +
+				", sourceUrl='" + sourceUrl + '\'' +
+				'}';
 	}
 }

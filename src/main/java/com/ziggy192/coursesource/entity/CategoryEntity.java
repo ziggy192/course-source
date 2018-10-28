@@ -34,6 +34,9 @@ import java.util.Objects;
 @XmlRootElement(name = "Category", namespace = "www.Category.com")
 @Entity
 @Table(name = "Category", schema = "course_source")
+@NamedQueries(
+		@NamedQuery(name = "CategoryEntity.getCategoryByName",query = "select d from CategoryEntity  d where d.name like :categoryName")
+)
 public class CategoryEntity {
 	private int id;
 	private String name;
