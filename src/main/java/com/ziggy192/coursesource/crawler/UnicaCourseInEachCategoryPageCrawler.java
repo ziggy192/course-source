@@ -2,9 +2,12 @@ package com.ziggy192.coursesource.crawler;
 
 import com.ziggy192.coursesource.Constants;
 import com.ziggy192.coursesource.url_holder.CourseUrlHolder;
+import com.ziggy192.coursesource.url_holder.UnicaCourseUrlHolder;
 import com.ziggy192.coursesource.util.ParserUtils;
+import com.ziggy192.coursesource.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.net.www.ParseUtil;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -32,28 +35,55 @@ public class UnicaCourseInEachCategoryPageCrawler implements Runnable {
 	@Override
 	public void run() {
 
+		logger.info("start thread");
+		try {
+			List<UnicaCourseUrlHolder> courseListFromEachPage = getCourseListFromEachPage(categoryPageUrl);
+			for (UnicaCourseUrlHolder courseUrlHolder : courseListFromEachPage) {
+				logger.info(courseUrlHolder.toString());
+				//check suspend
+				synchronized (BaseThread.getInstance()) {
+					while (BaseThread.getInstance().isSuspended()) {
+						BaseThread.getInstance().wait();
+					}
+				}
+
+//				Thread courseDetailCrawler = new Thread(new EdumallCourseDetailCrawler(UnicaCourseUrlHolder, categoryId));
+//				//todo thread execute
+//				BaseThread.getInstance().getExecutor().execute(courseDetailCrawler);
+//				courseDetailCrawler.start();
+
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		logger.info("END THREAD");
 	}
 
-	public static List<CourseUrlHolder> getCourseListFromEachPage(String uri) {
+	public static List<UnicaCourseUrlHolder> getCourseListFromEachPage(String uri) {
 
 //		String uri = "https://edumall.vn/courses/filter&page=2";
 
 //		String uri = categoryUrlHolder.getCategoryURL();
-		String beginSign = "section class='area-display-courses'";
-		String endSign = "</section>";
+		String beginSign = "<div class=\"u-all-course\"";
+		String endSign = "<div class=\"u-number-page\">";
 //		String endSign = "form class='form-paginate form-inline'";
-
 		String htmlContent = ParserUtils.parseHTML(uri, beginSign, endSign);
 		htmlContent = ParserUtils.addMissingTag(htmlContent);
 
+		logger.info(htmlContent);
 
-		List<CourseUrlHolder> courseList = new ArrayList<>();
+		List<UnicaCourseUrlHolder> courseList = new ArrayList<>();
 
-		boolean insideCourseListDiv = false;
+		boolean insideCourseListSection = false;
 		try {
 			XMLEventReader staxReader = ParserUtils.getStaxReader(htmlContent);
+			UnicaCourseUrlHolder courseUrlHolder = null;
 			while (staxReader.hasNext()) {
 				XMLEvent event = staxReader.nextEvent();
+
+
 				if (event.isStartElement()) {
 					StartElement startElement = event.asStartElement();
 					Iterator<Attribute> attributes = startElement.getAttributes();
@@ -61,10 +91,10 @@ public class UnicaCourseInEachCategoryPageCrawler implements Runnable {
 
 					//todo check inside courseListDiv
 					//<div class='list-courses-filter'
-					if (!insideCourseListDiv) {
+					if (!insideCourseListSection) {
 						{
-							if (ParserUtils.checkAttributeContainsKey(startElement, "class", "list-courses-filter")) {
-								insideCourseListDiv = true;
+							if (startElement.getName().getLocalPart().equals("section")) {
+								insideCourseListSection = true;
 							}
 						}
 					}
@@ -81,89 +111,55 @@ public class UnicaCourseInEachCategoryPageCrawler implements Runnable {
 //
 //
 //					}					int d
-					if (insideCourseListDiv) {
+					if (insideCourseListSection) {
 
 
 						//todo traverse each div with  <div class='col-4'>
 						if (startElement.getName().getLocalPart().equals("div")
-								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "col-4")) {
+								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "box-pop")) {
 //							courseCount++;
 //							XMLEvent articleElement = nextStartEvent(staxReader, "article");
-
-
-							CourseUrlHolder courseUrlHolder = new CourseUrlHolder();
+							if (courseUrlHolder != null) {
+								logger.info(String.format("course number=%s || CourseHolder=%s", courseList.size() - 1, courseUrlHolder));
+							}
+							courseUrlHolder = new UnicaCourseUrlHolder();
 							courseList.add(courseUrlHolder);
 
 						}
-						//todo get thumnail image in
-						// <div class="course-header img-thumb gtm_section_recommendation"
-						// data-src="//d1nzpkv5wwh1xf.cloudfront.net/320/k-57b67d6e60af25054a055b20/20170817-tungnt9image1708/thanhnd04.png"
+
+						//todo get thumbnail image
 
 						if (startElement.getName().getLocalPart().equals("div")
-								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "course-header")
-								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "img-thumb")
-								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "gtm_section_recommendation")) {
-							Attribute thumnailAttribute = startElement.getAttributeByName(new QName("data-src"));
-							if (thumnailAttribute != null) {
-
-								String thumnaillUrl = thumnailAttribute.getValue();
-								if (thumnaillUrl.startsWith("//")) {
-									thumnaillUrl = thumnaillUrl.substring(2);
-								}
-								CourseUrlHolder courseUrlHolder = courseList.get(courseList.size() - 1);
-								courseUrlHolder.setCourseThumbnailUrl(thumnaillUrl);
-								logger.info(String.format("course number=%s || thumnail=%s", courseList.size() - 1, thumnaillUrl));
-							}
+								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "img-course")) {
+							startElement = ParserUtils.nextStartEvent(staxReader, "img").asStartElement();
+							String src = ParserUtils.getAttributeByName(startElement, "src");
+							courseUrlHolder.setCourseThumbnailUrl(src);
+							logger.info(String.format("course number=%s || thumnail=%s", courseList.size() - 1, src));
 						}
 
-
-						//todo get CourseName
-						//	<h5 class="gtm_section_recommendation course-title" xpath="1">Microsoft Word cơ bản và hiệu quả</h5>
-						if (startElement.getName().getLocalPart().contains("h")
-								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "gtm_section_recommendation")
-								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "course-title")) {
-							String title = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
-							CourseUrlHolder lastCourse = courseList.get(courseList.size() - 1);
-							lastCourse.setCourseName(title);
-							logger.info(String.format("course number=%s || courseName =%s", courseList.size() - 1, title));
-
-						}
-						//todo get courseUrl
-						//<a class='gtm_section_recommendation's
-
+						//todo get course URL
 						if (startElement.getName().getLocalPart().equals("a")
-								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "gtm_section_recommendation")) {
-							CourseUrlHolder lastCourse = courseList.get(courseList.size() - 1);
-							if (lastCourse.getCourseUrl() == null || lastCourse.getCourseUrl().isEmpty()) {
-								//check for dupplicate a tags
-								Attribute hrefAttribute = startElement.getAttributeByName(new QName("href"));
+								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "course-box-slider")) {
+							String href = ParserUtils.getAttributeByName(startElement, "href");
 
-								if (hrefAttribute != null) {
-									String hrefValue = hrefAttribute.getValue();
-//									try {
-//										hrefValue = URLEncoder.encode(hrefValue, "ISO-8859-1");
-//									} catch (UnsupportedEncodingException e) {
-//										e.printStackTrace();
-//									}
+							courseUrlHolder.setCourseUrl(href);
+							logger.info(String.format("course number=%s || courseURL=%s", courseList.size() - 1, href));
 
-//									try {
-//
-//										//UTF-8 encode URL
-//										URI urimodel = new URI("https", Constants.EDUMALL_DOMAIN, hrefValue, null);
-//										hrefValue  = urimodel.toASCIIString();
-//									} catch (URISyntaxException e) {
-//										e.printStackTrace();
-//
-//									}
-									hrefValue = Constants.EDUMALL_DOMAIN + hrefValue;
-									lastCourse.setCourseUrl(hrefValue);
-									logger.info(String.format("course number=%s || coureUrl=%s", courseList.size() - 1, hrefValue));
-
-								}
-							}
 						}
 
+						//todo get cost
+						if (startElement.getName().getLocalPart().equals("span")
+								&& ParserUtils.checkAttributeContainsKey(startElement, "class", "price-a")) {
+							String costStr = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
 
+							if (!costStr.isEmpty()) {
+								double costValue = StringUtils.getNumberValueFromString(costStr);
+								courseUrlHolder.setCost(costValue);
+								logger.info(String.format("course number=%s || cost=%s", courseList.size() - 1, costValue));
+
+							}
+
+						}
 					}
 				}
 

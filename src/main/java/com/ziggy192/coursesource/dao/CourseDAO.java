@@ -47,7 +47,7 @@ public class CourseDAO extends BaseDAO<CourseEntity,Integer> {
 
 		if (!resultList.isEmpty()) {
 			//set correct id to courseEntity
-			courseEntity.setId(courseEntity.getId());
+			courseEntity.setId(resultList.get(0).getId());
 		}
 
 		//then save to db

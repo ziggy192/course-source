@@ -1,9 +1,8 @@
 package com.ziggy192.coursesource.dao;
 
-import com.ziggy192.coursesource.CategoryMapping;
+import com.ziggy192.coursesource.entity.CategoryMapping;
 import com.ziggy192.coursesource.entity.CategoryEntity;
 import com.ziggy192.coursesource.util.DBUtils;
-import jaxb.Category;
 
 import java.util.List;
 

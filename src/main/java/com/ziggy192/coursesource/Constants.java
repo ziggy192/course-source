@@ -20,4 +20,8 @@ public class Constants {
 	/*=======================================*/
 	public static final String HTML_CRAWLED_RESOURCE_PATH = "src/main/resources/html-crawled/";
 	public static final String FILE_EDUMALL_HOME = HTML_CRAWLED_RESOURCE_PATH+"edumall.vn.html";
+
+
+
+	public static final String DEBUGGIN_RESOURCE_PATH = "src/main/resources/testing/";
 }

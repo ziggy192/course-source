@@ -1,6 +1,6 @@
 package com.ziggy192.coursesource.crawler;
 
-import com.ziggy192.coursesource.CategoryMapping;
+import com.ziggy192.coursesource.entity.CategoryMapping;
 import com.ziggy192.coursesource.Constants;
 import com.ziggy192.coursesource.DummyDatabase;
 import com.ziggy192.coursesource.dao.CategoryDAO;

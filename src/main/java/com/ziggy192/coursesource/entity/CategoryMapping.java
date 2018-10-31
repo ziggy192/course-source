@@ -1,4 +1,4 @@
-package com.ziggy192.coursesource;
+package com.ziggy192.coursesource.entity;
 
 public enum CategoryMapping {
 	TEST_PREP ("Luyện thi")

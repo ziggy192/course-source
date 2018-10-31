@@ -1,4 +1,4 @@
-package com.ziggy192.coursesource;
+package com.ziggy192.coursesource.test;
 
 import com.ziggy192.coursesource.crawler.EdumallCourseDetailCrawler;
 import com.ziggy192.coursesource.crawler.EdumallCourseInEachCategoryPageCrawler;

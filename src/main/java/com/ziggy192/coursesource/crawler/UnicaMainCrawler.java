@@ -1,6 +1,6 @@
 package com.ziggy192.coursesource.crawler;
 
-import com.ziggy192.coursesource.CategoryMapping;
+import com.ziggy192.coursesource.entity.CategoryMapping;
 import com.ziggy192.coursesource.Constants;
 import com.ziggy192.coursesource.DummyDatabase;
 import com.ziggy192.coursesource.dao.CategoryDAO;
@@ -10,8 +10,6 @@ import com.ziggy192.coursesource.url_holder.CategoryUrlHolder;
 import com.ziggy192.coursesource.util.ParserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.net.www.ParseUtil;
-import sun.tools.jconsole.inspector.Utils;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -20,7 +18,6 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class UnicaMainCrawler implements Runnable {

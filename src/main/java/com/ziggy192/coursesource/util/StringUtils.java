@@ -67,4 +67,16 @@ public class StringUtils {
 		String combine = toRawString(courseName) + toRawString(authorName);
 		return hashingString(combine);
 	}
+
+	public static double getNumberValueFromString(String input) {
+		double result = 0;
+		for (int i = 0; i < input.length(); i++) {
+			if (input.charAt(i) >= '0' && input.charAt(i) <= '9') {
+				int charValue = input.charAt(i) - '0';
+				result = result * 10 + charValue;
+			}
+		}
+
+		return result;
+	}
 }

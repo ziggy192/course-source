@@ -30,6 +30,11 @@ public class Formater {
 	}
 
 
+	public static String toEmphasis(String content) {
+		return String.format("<em class='%s'>%s</em>", CSS_CLASS_ATTRIBUTE_NAME, content);
+
+	}
+
 
 	public static String toList(String[] listItem) {
 		String result = "";
@@ -47,8 +52,8 @@ public class Formater {
 		return String.format("<p class='%s'>%s</p>", CSS_CLASS_ATTRIBUTE_NAME, content);
 	}
 
-	public static String addNextLine(String content) {
-		return content + "<br/>";
+	public static String addNextLine() {
+		return  "<br/>";
 	}
 
 
@@ -58,21 +63,21 @@ public class Formater {
 
 
 
-	public static String addBeginList(String content) {
-		return String.format("%s<ul class='%s'>", content, CSS_CLASS_ATTRIBUTE_NAME);
+	public static String addBeginList() {
+		return String.format("<ul class='%s'>", CSS_CLASS_ATTRIBUTE_NAME);
 
 	}
 
-	public static String addEndList(String content) {
-		return content + "</ul>";
+	public static String addEndList() {
+		return "</ul>";
 	}
 
-	public static String addBeginRoot(String content) {
-		return String.format("<div class='%s' xmlns=\"http://www.w3.org/1999/xhtml\">%s",CSS_CLASS_ATTRIBUTE_NAME,content );
+	public static String addBeginRoot() {
+		return String.format("<div class='%s' xmlns=\"http://www.w3.org/1999/xhtml\">",CSS_CLASS_ATTRIBUTE_NAME );
 	}
 
-	private static String addEndRoot(String content) {
-		return content+"</div>";
+	private static String addEndRoot() {
+		return "</div>";
 
 	}
 

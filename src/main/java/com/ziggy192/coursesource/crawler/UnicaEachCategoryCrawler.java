@@ -33,7 +33,6 @@ public class UnicaEachCategoryCrawler implements Runnable{
 		String htmlContent = ParserUtils.parseHTML(categoryUrl, beginSign, endSign);
 
 		htmlContent = ParserUtils.addMissingTag(htmlContent);
-		System.out.println(htmlContent);
 		int pageCount = 1;
 		try {
 			XMLEventReader staxReader = ParserUtils.getStaxReader(htmlContent);
@@ -88,12 +87,9 @@ public class UnicaEachCategoryCrawler implements Runnable{
 			for (int i = 1; i <= pageNumber; i++) {
 				String eachPageUri = categoryUrl + "&page=" + i;
 
-//				Thread courseInEachCategoryPageCrawler = new Thread(new EdumallCourseInEachCategoryPageCrawler(eachPageUri, categoryId));
+				Thread courseInEachCategoryPageCrawler = new Thread(new UnicaCourseInEachCategoryPageCrawler(eachPageUri, categoryId));
 				//todo thread execute
-//				BaseThread.getInstance().getExecutor().execute(courseInEachCategoryPageCrawler);
-
-//				courseInEachCategoryPageCrawler.start();
-
+				BaseThread.getInstance().getExecutor().execute(courseInEachCategoryPageCrawler);
 
 				//check issuspend
 				synchronized (BaseThread.getInstance()) {

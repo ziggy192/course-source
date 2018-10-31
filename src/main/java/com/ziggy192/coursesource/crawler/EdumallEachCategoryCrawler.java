@@ -72,7 +72,7 @@ public class EdumallEachCategoryCrawler implements Runnable{
 						//todo get all <em class="current"> or <a href="...&page=[number]> content
 
 
-						if (ParserUtils.checkAttributeEqualsKey(startElement, "class", "current")
+						if (ParserUtils.checkAttributeContainsKey(startElement, "class", "current")
 								|| ParserUtils.getAttributeByName(startElement, "href").contains("page=")
 						) {
 

@@ -2,6 +2,7 @@ package com.ziggy192.coursesource.crawler;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class BaseThread extends Thread {
 	public static int THREAD_LIMIT = 10;
@@ -12,6 +13,9 @@ public class BaseThread extends Thread {
 	private ThreadPoolExecutor executor;
 	private BaseThread() {
 		executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(THREAD_LIMIT);
+		executor.setKeepAliveTime(5, TimeUnit.SECONDS);
+		executor.allowCoreThreadTimeOut(true);
+
 	}
 
 

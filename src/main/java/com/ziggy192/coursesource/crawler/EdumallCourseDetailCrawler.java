@@ -119,7 +119,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 
 							if (srcAtt != null) {
 								videoUrl = srcAtt.getValue();
-								logger.info("VideURL=" + videoUrl);
+//								logger.info("VideURL=" + videoUrl);
 								courseEntity.setPreviewVideoUrl(videoUrl);
 
 							}
@@ -141,13 +141,9 @@ public class EdumallCourseDetailCrawler implements Runnable {
 							if (!cost.isEmpty()) {
 
 								//get int value from cost
-								for (int i = 0; i < cost.length(); i++) {
-									if (cost.charAt(i) >= '0' && cost.charAt(i) <= '9') {
-										int charValue = cost.charAt(i) - '0';
-										costValue = costValue * 10 + charValue;
-									}
-								}
-								logger.info("Cost=" + costValue);
+								costValue = StringUtils.getNumberValueFromString(cost);
+
+//								logger.info("Cost=" + costValue);
 								courseEntity.setCost(costValue);
 							}
 						}
@@ -167,7 +163,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 							String durationStr = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
 							if (!durationStr.isEmpty()) {
 								int duration = toDuration(durationStr);
-								logger.info("Duration In seconds=" + duration);
+//								logger.info("Duration In seconds=" + duration);
 								courseEntity.setDuration(duration);
 							}
 						}
@@ -206,7 +202,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 										String authorName = ParserUtils.getContentAndJumpToEndElement(staxReader, startElement);
 										stackCount--;
 										if (!authorName.isEmpty()) {
-											logger.info("Author=" + authorName);
+//											logger.info("Author=" + authorName);
 											courseEntity.setAuthor(authorName);
 										}
 									}
@@ -219,7 +215,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 											imageUrl = imageUrl.substring(2);
 										}
 
-										logger.info("AuthorImage=" + imageUrl);
+//										logger.info("AuthorImage=" + imageUrl);
 										courseEntity.setAuthorImageUrl(imageUrl);
 									}
 									if (ParserUtils.checkAttributeContainsKey(startElement, "id", "author_info")) {
@@ -243,7 +239,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 							}
 
 							authorInfo = Formater.toRoot(authorInfo);
-							logger.info("AuthorInfo=" + authorInfo);
+//							logger.info("AuthorInfo=" + authorInfo);
 
 							courseEntity.setAuthorDescription(authorInfo);
 						}
@@ -315,7 +311,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 
 							}
 							overviewDescription += Formater.toList((contentList.toArray(new String[contentList.size()])));
-							logger.info("OverviewPar1=" + overviewDescription);
+//							logger.info("OverviewPar1=" + overviewDescription);
 
 						}
 
@@ -384,7 +380,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 							}
 
 							overviewDescription += Formater.toList(contentList.toArray(new String[contentList.size()]));
-							logger.info("OverviewPart2" + overviewDescription);
+//							logger.info("OverviewPart2" + overviewDescription);
 
 
 						}
@@ -433,7 +429,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 								}
 							}
 
-							logger.info("OverviewPart3=" + overviewDescription);
+//							logger.info("OverviewPart3=" + overviewDescription);
 
 						}
 
@@ -501,7 +497,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 
 							syllabus = Formater.toRoot(syllabus);
 							courseEntity.setSyllabus(syllabus);
-							logger.info("Syllabus=" + syllabus);
+//							logger.info("Syllabus=" + syllabus);
 
 						}
 						//lecture-name
@@ -534,7 +530,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 							} catch (NumberFormatException e) {
 								e.printStackTrace();
 							}
-							logger.info("Rating=" + rating);
+//							logger.info("Rating=" + rating);
 
 							event = staxReader.nextEvent();
 							if (event.isCharacters()) {
@@ -547,7 +543,7 @@ public class EdumallCourseDetailCrawler implements Runnable {
 									e.printStackTrace();
 								}
 								courseEntity.setRatingNumber(ratingNumber);
-								logger.info("RatingNumber=" + ratingNumber);
+//								logger.info("RatingNumber=" + ratingNumber);
 							}
 						}
 
@@ -557,9 +553,8 @@ public class EdumallCourseDetailCrawler implements Runnable {
 
 
 				overviewDescription = Formater.toRoot(overviewDescription);
-				logger.info("FullOverviewDes=" + overviewDescription);
+//				logger.info("FullOverviewDes=" + overviewDescription);
 				courseEntity.setOverviewDescription(overviewDescription);
-
 
 
 				//if no exception then save to data base

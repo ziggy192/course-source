@@ -1,11 +1,13 @@
 package com.ziggy192.coursesource.util;
 
 import com.sun.xml.internal.stream.events.EndElementEvent;
+import com.ziggy192.coursesource.Constants;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+import sun.tools.tree.StringExpression;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -26,6 +28,7 @@ import javax.xml.validation.Validator;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -51,7 +54,7 @@ public class ParserUtils {
 		/* <asdfafd/> -> null
 		 * <dasfasf> -> dasfasf
 		 * </dasfasf> -> /dasfasf
-		 *
+		 *<!-- afasfasf -->
 		 *
 		 * */
 		if (content.charAt(content.length() - 2) == '/') {
@@ -162,7 +165,6 @@ public class ParserUtils {
 
 			}
 		}
-
 		return "<root>" + newContent + "</root>";
 	}
 
@@ -189,7 +191,7 @@ public class ParserUtils {
 				stackCount++;
 			}
 			if (event.isCharacters()) {
-				content = event.asCharacters().getData();
+				content += event.asCharacters().getData();
 			}
 			if (event.isEndElement()) {
 				stackCount--;
@@ -470,28 +472,20 @@ public class ParserUtils {
 			String inputLine;
 
 			while ((inputLine = bufferedReader.readLine()) != null) {
+//				System.out.println(inputLine);
 				if (inputLine.contains(beginSign)) {
-
 					isInside = true;
-					//todo debugging
-					System.out.println(inputLine);
-
-					if (inputLine.contains("<")) {
-						//cut the pre string that dont confort html format
-						//this require begin sign must start with <...
-
-					}
 				}
 
 				if (isInside) {
 
 					int beginIndex = 0;
-					if (beginSign.contains("<")) {
+					if (inputLine.contains(beginSign) && beginSign.startsWith("<")) {
 						beginIndex = inputLine.indexOf(beginSign);
 					}
 
 					int endIndex = inputLine.length();
-					if (inputLine.contains(endSign) && endSign.contains("<")) {
+					if (inputLine.contains(endSign) && endSign.startsWith("<")) {
 						endIndex = inputLine.indexOf(endSign);
 					}
 
@@ -522,6 +516,7 @@ public class ParserUtils {
 		String content = htmlBuilder.toString();
 		content = StringEscapeUtils.unescapeHtml4(content);
 		content = replaceEntities(content);
+		content = removeComment(content);
 		return content;
 	}
 
@@ -529,10 +524,11 @@ public class ParserUtils {
 	public static String replaceEntities(String content) {
 		content = content
 				.replace("&", "&amp;")
-				.replace("&#38;nbsp;", "")
 				.replace("\t", "")
+				.replace("\n", "")
 				.replace("<br>", "")
 				.replace("</br>", "");
+
 		return content;
 	}
 
@@ -551,8 +547,9 @@ public class ParserUtils {
 	}
 
 
-	public static boolean checkAttributeContainsKey(XMLEvent eventElement, String attributeName, String[] keys) {
 
+	public static boolean checkAttributeContainsKey(XMLEvent eventElement, String attributeName, String[] keys) {
+		// check if having any attribute EQUALS 1 of those keys
 		if (eventElement.isStartElement()) {
 			StartElement startElement = eventElement.asStartElement();
 
@@ -563,6 +560,7 @@ public class ParserUtils {
 				List<String> attValueItem = Arrays.asList(attValue.split(" "));
 				for (String key : keys) {
 					if (!attValueItem.contains(key)) {
+						//list.contains() use "equals()" to compare -> good
 						return false;
 					}
 				}
@@ -573,19 +571,19 @@ public class ParserUtils {
 		}
 		return false;
 	}
-
-	public static boolean checkAttributeEqualsKey(XMLEvent eventElement, String attributeName, String key) {
-
-		if (eventElement.isStartElement()) {
-			StartElement startElement = eventElement.asStartElement();
-			Attribute attribute = startElement.getAttributeByName(new QName(attributeName));
-			if (attribute != null) {
-				return attribute.getValue().equals(key);
-
-			}
-		}
-		return false;
-	}
+//
+//	public static boolean checkAttributeEqualsKey(XMLEvent eventElement, String attributeName, String key) {
+//
+//		if (eventElement.isStartElement()) {
+//			StartElement startElement = eventElement.asStartElement();
+//			Attribute attribute = startElement.getAttributeByName(new QName(attributeName));
+//			if (attribute != null) {
+//				return attribute.getValue().trim().equals(key.trim());
+//
+//			}
+//		}
+//		return false;
+//	}
 
 	public static String getAllHtmlContentAndJumpToEndElement(XMLEventReader reader, XMLEvent currentEvent) throws XMLStreamException {
 		String result = "";
@@ -702,4 +700,41 @@ public class ParserUtils {
 		return "";
 	}
 
+	public static String removeComment(String content) {
+		//remove all line breaks
+		content  = content.replace("\n", "");
+		String commentPattern = "<!--.*?-->";
+		return content.replaceAll(commentPattern, "");
+	}
+
+
+	public static void saveToHtmlFileForDebugging(String fileName, String content) {
+		String resourcePath = Constants.DEBUGGIN_RESOURCE_PATH;
+
+		File file = new File(resourcePath + fileName);
+		System.out.println("filePath"+file.getAbsolutePath());
+
+		PrintWriter writer = null;
+		FileWriter fileWriter = null;
+		try {
+			fileWriter = new FileWriter(file);
+			writer = new PrintWriter(fileWriter);
+			writer.write(content);
+			writer.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if (fileWriter != null) {
+					fileWriter.close();
+				}
+				if (writer != null) {
+					writer.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
 }
